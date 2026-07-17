@@ -1,74 +1,11 @@
-const talks = [
-  {
-    title:
-      "A Mountain in Space: Taixu and the Buddhist Imagination of the Cosmos",
-    speaker: "Ben Van Overmeire",
-    affiliation: "Duke Kunshan University",
-    date: "Tuesday, 15 September 2026",
-    time: "10-11:30 EDT",
-    summary:
-      "Taixu's attempt to reconcile Western astronomy with Buddhist cosmology, and the wider role of Buddhism in the human imagination of outer space.",
-  },
-  {
-    title: "SETI@home 2.0: UFOs, Politics and the Science of Extraterrestrial Intelligence",
-    speaker: "Christian Peters",
-    affiliation: "Universität Bremen",
-    comment: "Comment by Thore Bjørnvig, Copenhagen",
-    date: "Tuesday, 13 October 2026",
-    time: "10-11:30 EDT",
-    summary:
-      "A look at SETI, UAP, political attention, and how societies organize knowledge around evidence of other capable minds.",
-  },
-  {
-    title: "The Kuafu Paradox: Why China's Flagship Solar Mission Failed to Launch",
-    speaker: "Zhihui Zhang",
-    affiliation: "Chinese Academy of Sciences",
-    comment: "Comment by Zuoyue Wang, California State Polytechnic University",
-    date: "Tuesday, 3 November 2026",
-    time: "10-11:30 EST",
-    summary:
-      "The stalled Kuafu Program as a case study in geopolitical tensions, institutional priorities, and fragile international collaboration.",
-  },
-  {
-    title: "When Is a Planet Just Right? Su-Shu Huang and the Concept of the Habitable Zone",
-    speaker: "Michael Robinson",
-    affiliation: "University of Hartford",
-    date: "Tuesday, 1 December 2026",
-    time: "10-11:30 EST",
-    summary:
-      "The evolution of Huang's habitable zone as an idea, from early SETI discussions to modern exoplanet research.",
-  },
-];
-
-const archive = [
-  "Spring 2026",
-  "Fall 2025",
-  "Spring 2025",
-  "Fall 2024",
-  "Spring 2024",
-  "Fall 2023",
-  "Spring 2023",
-  "Fall 2022",
-  "Spring 2022",
-  "Fall 2021",
-  "Summer 2021",
-  "Spring 2021",
-];
+import Link from "next/link";
+import { SiteHeader } from "./components/SiteHeader";
+import { archiveSeasons, talks } from "./data";
 
 export default function Home() {
   return (
     <main>
-      <header className="site-header">
-        <a className="nyu-link" href="https://as.nyu.edu/" aria-label="NYU Arts and Science">
-          NYU
-        </a>
-        <nav aria-label="Primary navigation">
-          <a href="#about">About</a>
-          <a href="#schedule">Fall 2026</a>
-          <a href="#archive">Archive</a>
-          <a href="#contact">Contact</a>
-        </nav>
-      </header>
+      <SiteHeader />
 
       <section className="hero">
         <div className="hero-copy">
@@ -137,7 +74,12 @@ export default function Home() {
                 </p>
                 {talk.comment ? <p className="comment">{talk.comment}</p> : null}
                 <p>{talk.summary}</p>
-                <a className="text-link" href="https://www.space-talks.com/" target="_blank">
+                <a
+                  className="text-link"
+                  href="https://www.space-talks.com/"
+                  rel="noreferrer"
+                  target="_blank"
+                >
                   RSVP details
                 </a>
               </div>
@@ -146,18 +88,21 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="archive" className="section archive-section">
+      <section className="section archive-section">
         <div className="section-heading">
           <p className="section-label">/ Archive</p>
           <h2>Past seasons and posters</h2>
         </div>
         <ul className="archive-grid" aria-label="Archive seasons">
-          {archive.map((season) => (
-            <li key={season}>
-              <a href="https://www.space-talks.com/" target="_blank">{season}</a>
+          {archiveSeasons.slice(0, 6).map((season) => (
+            <li key={season.slug}>
+              <Link href={`/archive/${season.slug}`}>{season.season}</Link>
             </li>
           ))}
         </ul>
+        <Link className="button secondary archive-cta" href="/archive">
+          View full archive
+        </Link>
       </section>
 
       <section id="contact" className="section contact-section">

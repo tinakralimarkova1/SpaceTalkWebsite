@@ -15,6 +15,8 @@ forms, analytics, or deployment settings change.
   until final URLs are collected.
 - Added a mailing-list form placeholder. It does not submit yet.
 - Added documentation for Vercel/domain setup and future handoff.
+- Revised the archive navigation: Archive is now a simple top-level tab that
+  opens one archive page with previous-season information grouped by season.
 
 ## Open Migration Tasks
 
