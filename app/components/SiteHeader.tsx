@@ -7,7 +7,6 @@ export function SiteHeader() {
         NYU
       </Link>
       <nav aria-label="Primary navigation">
-        <Link href="/#about">About</Link>
         <Link href="/#schedule">Fall 2026</Link>
         <Link href="/archive">Archive</Link>
         <Link href="/#contact">Contact</Link>

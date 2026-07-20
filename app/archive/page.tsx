@@ -1,10 +1,9 @@
-import Link from "next/link";
 import { SiteHeader } from "../components/SiteHeader";
 import { archiveSeasons } from "../data";
 
 export const metadata = {
   title: "Archive | NYU Space Talks",
-  description: "Past NYU Space Talks seasons and posters.",
+  description: "NYU Space Talks archive.",
 };
 
 export default function ArchivePage() {
@@ -13,12 +12,7 @@ export default function ArchivePage() {
       <SiteHeader />
       <section className="subpage-hero">
         <p className="eyebrow">Archive</p>
-        <h1>Past Seasons</h1>
-        <p>
-          Browse previous NYU Space Talks seasons in one place. This page will
-          keep growing as more Wix archive material, posters, images, and links
-          are migrated.
-        </p>
+        <h1>NYU Space Talks</h1>
       </section>
 
       <section className="section archive-index">
@@ -27,9 +21,6 @@ export default function ArchivePage() {
             <div className="archive-season-heading">
               <p className="section-label">Archive</p>
               <h2>{season.season}</h2>
-              <Link className="text-link" href={season.sourceUrl} target="_blank">
-                Original Wix page
-              </Link>
             </div>
 
             {season.talks.length > 0 ? (
@@ -49,16 +40,12 @@ export default function ArchivePage() {
                       {talk.comment ? (
                         <p className="comment">{talk.comment}</p>
                       ) : null}
-                      <p>{talk.summary}</p>
                     </div>
                   </article>
                 ))}
               </div>
             ) : (
-              <p className="archive-empty">
-                This season is listed in the Wix archive, but its talk details
-                still need to be migrated.
-              </p>
+              <p className="archive-empty">{season.season}</p>
             )}
           </article>
         ))}

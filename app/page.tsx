@@ -7,41 +7,25 @@ export default function Home() {
     <main>
       <SiteHeader />
 
-      <section className="hero">
+      <section id="about" className="hero">
         <div className="hero-copy">
           <p className="eyebrow">History, Politics, Astroculture</p>
           <h1>NYU Space Talks</h1>
-          <p>
-            A public lecture series convening scholars to present new research
-            on outer space, extraterrestrial life, and astroculture in Europe
-            and around the globe.
-          </p>
           <div className="hero-actions">
             <a className="button primary" href="#schedule">
-              View Fall 2026
+              Fall 2026
             </a>
             <a className="button secondary" href="#contact">
-              Join updates
+              Sign Up
             </a>
           </div>
         </div>
-        <div className="orbital-visual" aria-hidden="true">
-          <span className="planet planet-large" />
-          <span className="planet planet-small" />
-          <span className="orbit orbit-one" />
-          <span className="orbit orbit-two" />
-          <span className="star star-one" />
-          <span className="star star-two" />
-          <span className="star star-three" />
-        </div>
-      </section>
-
-      <section id="about" className="section split">
-        <div>
-          <p className="section-label">/ About</p>
-          <h2>Research conversations held online and open to all.</h2>
-        </div>
-        <div className="body-copy">
+        <div className="hero-about">
+          <p>
+            Each semester, established and upcoming scholars present the latest
+            research on the history and politics of outer space, extraterrestrial
+            life and astroculture, both in Europe and around the globe.
+          </p>
           <p>
             Inaugurated in spring 2021, NYU Space Talks is a lecture series
             convened by Alexander C. T. Geppert at NYU&apos;s Center for
@@ -73,14 +57,13 @@ export default function Home() {
                   {talk.speaker} <span>({talk.affiliation})</span>
                 </p>
                 {talk.comment ? <p className="comment">{talk.comment}</p> : null}
-                <p>{talk.summary}</p>
                 <a
                   className="text-link"
                   href="https://www.space-talks.com/"
                   rel="noreferrer"
                   target="_blank"
                 >
-                  RSVP details
+                  RSVP
                 </a>
               </div>
             </article>
@@ -91,17 +74,17 @@ export default function Home() {
       <section className="section archive-section">
         <div className="section-heading">
           <p className="section-label">/ Archive</p>
-          <h2>Past seasons and posters</h2>
+          <h2>Archive</h2>
         </div>
         <ul className="archive-grid" aria-label="Archive seasons">
           {archiveSeasons.slice(0, 6).map((season) => (
             <li key={season.slug}>
-              <Link href={`/archive/${season.slug}`}>{season.season}</Link>
+              <Link href={`/archive#${season.slug}`}>{season.season}</Link>
             </li>
           ))}
         </ul>
         <Link className="button secondary archive-cta" href="/archive">
-          View full archive
+          Archive
         </Link>
       </section>
 
@@ -117,16 +100,13 @@ export default function Home() {
           </a>
         </div>
         <form className="signup-form">
-          <h3>Mailing list placeholder</h3>
-          <p>
-            Connect this form to the final mailing-list provider before launch.
-          </p>
+          <p>If you want to receive updates about future NYU Space Talks, please join our mailing list.</p>
           <label>
-            First name
+            First Name
             <input name="firstName" type="text" />
           </label>
           <label>
-            Last name
+            Last Name
             <input name="lastName" type="text" />
           </label>
           <label>
