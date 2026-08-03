@@ -1,6 +1,6 @@
-import Link from "next/link";
+import Image from "next/image";
 import { SiteHeader } from "./components/SiteHeader";
-import { archiveSeasons, talks } from "./data";
+import { talks } from "./data";
 
 export default function Home() {
   return (
@@ -16,7 +16,7 @@ export default function Home() {
               Fall 2026
             </a>
             <a className="button secondary" href="#contact">
-              Sign Up
+              Newsletter
             </a>
           </div>
         </div>
@@ -51,15 +51,27 @@ export default function Home() {
                 <span>{talk.date}</span>
                 <strong>{talk.time}</strong>
               </div>
-              <div className="talk-content">
+              <div className="talk-heading">
                 <h3>{talk.title}</h3>
                 <p className="speaker">
                   {talk.speaker} <span>({talk.affiliation})</span>
                 </p>
                 {talk.comment ? <p className="comment">{talk.comment}</p> : null}
+              </div>
+              <div className="talk-image-frame">
+                <Image
+                  className="talk-image"
+                  src={talk.image}
+                  alt={talk.imageAlt}
+                  fill
+                  sizes="(max-width: 820px) 100vw, 28vw"
+                />
+              </div>
+              <div className="talk-content">
+                <p className="talk-description">{talk.description}</p>
                 <a
-                  className="text-link"
-                  href="https://www.space-talks.com/"
+                  className="rsvp-button"
+                  href={talk.registrationUrl}
                   rel="noreferrer"
                   target="_blank"
                 >
@@ -71,29 +83,12 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="section archive-section">
-        <div className="section-heading">
-          <p className="section-label">/ Archive</p>
-          <h2>Archive</h2>
-        </div>
-        <ul className="archive-grid" aria-label="Archive seasons">
-          {archiveSeasons.slice(0, 6).map((season) => (
-            <li key={season.slug}>
-              <Link href={`/archive#${season.slug}`}>{season.season}</Link>
-            </li>
-          ))}
-        </ul>
-        <Link className="button secondary archive-cta" href="/archive">
-          Archive
-        </Link>
-      </section>
-
       <section id="contact" className="section contact-section">
         <div>
           <p className="section-label">/ Contact</p>
           <h2>Professor Alexander C. T. Geppert</h2>
           <p>New York University</p>
-          <p>King Juan Carlos I of Spain Center</p>
+          <p>NYU Shanghai</p>
           <p>53 Washington Square South, New York, NY 10012, USA</p>
           <a className="text-link" href="mailto:alexander.geppert@nyu.edu">
             alexander.geppert@nyu.edu

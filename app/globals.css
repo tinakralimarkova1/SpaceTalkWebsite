@@ -12,6 +12,7 @@
   --accent-dark: #ffcf8a;
   --sky: #8196ff;
   --void: #050711;
+  --section-overlay: rgba(5, 7, 17, 0.52);
 }
 
 @theme inline {
@@ -29,10 +30,7 @@ html {
 
 body {
   margin: 0;
-  background:
-    radial-gradient(circle at 18% 12%, rgba(129, 150, 255, 0.18), transparent 28%),
-    radial-gradient(circle at 82% 8%, rgba(255, 180, 92, 0.12), transparent 24%),
-    linear-gradient(180deg, #070a14 0%, var(--background) 46%, #050711 100%);
+  background: var(--void);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
@@ -40,6 +38,28 @@ body {
 a {
   color: inherit;
   text-decoration: none;
+}
+
+.site-background {
+  background:
+    url("/space-talks-fall-2026-background.jpg");
+  background-position: center;
+  background-size: cover;
+  bottom: -22vh;
+  left: 0;
+  pointer-events: none;
+  position: fixed;
+  right: 0;
+  top: -22vh;
+  transform: translate3d(0, var(--parallax-y, 0px), 0);
+  will-change: transform;
+  z-index: -2;
+}
+
+main {
+  background: var(--section-overlay);
+  position: relative;
+  z-index: 0;
 }
 
 .site-header {
@@ -81,10 +101,7 @@ nav a {
 
 .hero {
   align-items: center;
-  background:
-    radial-gradient(circle at 74% 28%, rgba(129, 150, 255, 0.22), transparent 32%),
-    radial-gradient(circle at 18% 18%, rgba(255, 180, 92, 0.13), transparent 22%),
-    linear-gradient(135deg, #070a14 0%, #10182b 54%, #050711 100%);
+  background: transparent;
   display: grid;
   gap: clamp(28px, 4vw, 56px);
   grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
@@ -205,6 +222,10 @@ h3 {
   padding: clamp(56px, 8vw, 104px) clamp(18px, 5vw, 64px);
 }
 
+.schedule-section {
+  background: transparent;
+}
+
 .split,
 .contact-section {
   display: grid;
@@ -230,8 +251,17 @@ h3 {
   border: 1px solid var(--line);
   display: grid;
   gap: 28px;
-  grid-template-columns: minmax(180px, 0.35fr) minmax(0, 1fr);
+  grid-template-columns: minmax(220px, 0.36fr) minmax(0, 1fr);
   padding: clamp(20px, 3vw, 36px);
+}
+
+.talk-heading {
+  align-self: start;
+}
+
+.talk-content {
+  align-self: start;
+  display: grid;
 }
 
 .talk-date span,
@@ -249,14 +279,65 @@ h3 {
   color: var(--muted);
 }
 
+.talk-image-frame {
+  aspect-ratio: 4 / 3;
+  border: 1px solid rgba(210, 220, 255, 0.24);
+  display: block;
+  max-height: 230px;
+  overflow: hidden;
+  position: relative;
+  width: 100%;
+}
+
+.talk-image {
+  display: block;
+  object-fit: cover;
+  object-position: center;
+}
+
 .speaker {
+  color: #f6f0e6;
+  font-size: 1.08rem;
   font-weight: 800;
+  line-height: 1.35;
+  margin-bottom: 4px;
 }
 
 .speaker span,
 .comment {
   color: var(--muted);
   font-weight: 400;
+}
+
+.comment {
+  font-style: italic;
+  margin-bottom: 18px;
+}
+
+.talk-description {
+  border-left: 2px solid rgba(255, 180, 92, 0.42);
+  color: #c4ccde;
+  font-size: 0.98rem;
+  line-height: 1.72;
+  margin-top: 0;
+  max-width: 980px;
+  padding: 18px 0 0 18px;
+}
+
+.rsvp-button {
+  align-items: center;
+  background: #f6f0e6;
+  border: 1px solid #f6f0e6;
+  color: #080b15;
+  display: inline-flex;
+  font-weight: 800;
+  justify-content: center;
+  justify-self: end;
+  margin-top: 18px;
+  min-height: 46px;
+  padding: 12px 20px;
+  text-transform: uppercase;
+  width: fit-content;
 }
 
 .text-link {
@@ -266,27 +347,6 @@ h3 {
   margin-top: 8px;
   text-decoration: underline;
   text-underline-offset: 4px;
-}
-
-.archive-grid {
-  display: grid;
-  gap: 10px;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.archive-grid a {
-  background: var(--panel);
-  border: 1px solid var(--line);
-  display: block;
-  font-weight: 800;
-  padding: 16px;
-}
-
-.archive-cta {
-  margin-top: 24px;
 }
 
 .subpage-hero {
@@ -364,9 +424,7 @@ h3 {
 }
 
 .contact-section {
-  background:
-    radial-gradient(circle at 78% 18%, rgba(129, 150, 255, 0.16), transparent 26%),
-    var(--void);
+  background: transparent;
   color: #ffffff;
 }
 
@@ -441,5 +499,9 @@ h3 {
     border-top: 1px solid var(--line);
     padding-left: 0;
     padding-top: 26px;
+  }
+
+  .rsvp-button {
+    justify-self: start;
   }
 }

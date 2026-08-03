@@ -404,7 +404,13 @@ export const talks = [
     speaker: "Ben Van Overmeire",
     affiliation: "Duke Kunshan University",
     date: "Tuesday, 15 September 2026",
-    time: "10-11:30 EDT",
+    time: "10-11:30 EDT/15-16:30 BST/16-17:30 CEST/22:00-23:30 CST",
+    registrationUrl:
+      "https://nyu.zoom.us/meeting/register/4_SxPo5hQ9e9UAOptjBw-g",
+    image: "/talk-images/van-overmeire-taixu-london-1929.png",
+    imageAlt: "Taixu in London in 1929",
+    description:
+      "When the famous Chinese Buddhist monk and reformer Taixu (1890-1947) attempted to make sense of how Western astronomy could be reconciled to Buddhist cosmology, he did something strange and original: he claimed that the traditional flat-earth geocentric Buddhist geography, which posited that at the center of the world there is a gigantic mountain around which sentient beings lived, was in fact a map of the solar system. This talk will first explain how and why Taixu justified this argument, drawing on an important but hitherto untranslated essay. Then it will place Taixu's work within a broader framework, showing that Buddhism has been a persistent influence on the human imagination of outer space, from 'Star Wars' to 'The Three Body Problem.'",
   },
   {
     title:
@@ -413,7 +419,13 @@ export const talks = [
     affiliation: "Universität Bremen",
     comment: "Comment by Thore Bjørnvig (Copenhagen)",
     date: "Tuesday, 13 October 2026",
-    time: "10-11:30 EDT",
+    time: "10-11:30 EDT/15-16:30 BST/16-17:30 CEST/22:00-23:30 CST",
+    registrationUrl:
+      "https://nyu.zoom.us/meeting/register/W-t9YWNjRhOrsbJt6dB7EQ",
+    image: "/talk-images/peters-uap.jpg",
+    imageAlt: "UAP footage still",
+    description:
+      "Since the launch of Project Ozma in 1960, SETI researchers have searched for extraterrestrial intelligence, while UFO researchers have argued that evidence of non-human intelligence may already exist on Earth. Despite this apparent overlap, the two fields remained largely separate for decades. That divide is now under pressure. Since the 2022 Congressional hearings, whistleblower claims, government reports, and growing academic engagement have pushed unidentified anomalous phenomena (UAP) from the margins into political and scientific debate. While their nature remains contested, this talk examines what their changing status reveals about the social organization of knowledge. Why did UAP become a scientific taboo, and why are some governments less willing to sustain it? The answer may illuminate how societies respond to evidence of other capable minds, whether extraterrestrial or artificial.",
   },
   {
     title:
@@ -422,7 +434,13 @@ export const talks = [
     affiliation: "Chinese Academy of Sciences",
     comment: "Comment by Zuoyue Wang (California State Polytechnic University)",
     date: "Tuesday, 3 November 2026",
-    time: "10-11:30 EST",
+    time: "10-11:30 EST/15-16:30 GMT/16-17:30 CET/23:00-00:30 CST",
+    registrationUrl:
+      "https://nyu.zoom.us/meeting/register/kxh78i4OTk-BZyZlbngJIw",
+    image: "/talk-images/zhang-kuafu-project.png",
+    imageAlt: "Diagram of the Kuafu Project solar monitoring mission",
+    description:
+      "This paper examines the stalled Kuafu Program, a Chinese solar-terrestrial observation mission proposed in 2003 by leading space scientists, including Tu Chuanyi. Designed as a three-satellite constellation aligned with NASA's International Living With a Star (ILWS) framework and extending SOHO's observational legacy, Kuafu received official approval and attracted international attention. Yet the program was indefinitely suspended in 2014. The paper argues that its stagnation reflected the intersection of geopolitical tensions, institutional priorities, and divisions within Chinese and international scientific communities. Although China launched a smaller solar-observation satellite, Kuafu-1, in 2022, officials have not confirmed continuity with the original program. Kuafu thus reveals the fragile politics behind international collaboration in emerging space-science programs.",
   },
   {
     title:
@@ -430,6 +448,12 @@ export const talks = [
     speaker: "Michael Robinson",
     affiliation: "University of Hartford",
     date: "Tuesday, 1 December 2026",
-    time: "10-11:30 EST",
+    time: "10-11:30 EST/15-16:30 GMT/16-17:30 CET/23:00-00:30 CST",
+    registrationUrl:
+      "https://nyu.zoom.us/meeting/register/rOBtgTQjQJizfH_MB4ntyw",
+    image: "/talk-images/robinson-habitable-zone.jpg",
+    imageAlt: "Habitable zone diagram showing too hot, just right, and too cold regions",
+    description:
+      "In 1961, a group of scientists met at the Green Bank Observatory in West Virginia, USA, to discuss the search for extraterrestrial intelligence. The meeting included men who would become Space Age celebrities: Frank Drake, John Lilly and Carl Sagan. Yet one of the scientists at this meeting, Su-Shu Huang, was barely mentioned by his peers and remained unknown to the public, even though his research on planetary 'habitable zones' has become an ur-text of exoplanet research, cited ten times more frequently now than when he was alive. This talk examines the evolution of Huang's habitable zone as an idea. Although astronomers have now brought thousands of exoplanets into focus, the identification of a 'Goldilocks Zone' favorable to life remains controversial and difficult to resolve.",
   },
 ];
