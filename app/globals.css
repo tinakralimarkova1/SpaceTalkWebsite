@@ -279,6 +279,35 @@ h3 {
   color: var(--muted);
 }
 
+.talk-times {
+  color: #ffffff;
+  display: grid;
+  gap: 4px;
+  font-size: 0.95rem;
+  line-height: 1.35;
+  width: 100%;
+}
+
+.talk-times > .talk-time-row {
+  display: block;
+  white-space: nowrap;
+  width: 100%;
+}
+
+.talk-time-row span {
+  color: #ffffff;
+  display: inline;
+  font-weight: 700;
+  margin-bottom: 0;
+  white-space: nowrap;
+}
+
+.talk-time-row span + span::before {
+  color: rgba(246, 240, 230, 0.42);
+  content: "|";
+  margin: 0 8px;
+}
+
 .talk-image-frame {
   aspect-ratio: 4 / 3;
   border: 1px solid rgba(210, 220, 255, 0.24);

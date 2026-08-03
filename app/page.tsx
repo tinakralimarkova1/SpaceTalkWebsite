@@ -49,7 +49,17 @@ export default function Home() {
             <article className="talk-card" key={talk.title}>
               <div className="talk-date">
                 <span>{talk.date}</span>
-                <strong>{talk.time}</strong>
+                <strong className="talk-times">
+                  {[talk.time.split("/").slice(0, 2), talk.time.split("/").slice(2)].map(
+                    (timeRow) => (
+                      <span className="talk-time-row" key={timeRow.join("/")}>
+                        {timeRow.map((time) => (
+                          <span key={time}>{time}</span>
+                        ))}
+                      </span>
+                    ),
+                  )}
+                </strong>
               </div>
               <div className="talk-heading">
                 <h3>{talk.title}</h3>
