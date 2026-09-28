@@ -11,8 +11,8 @@ export default function ArchivePage() {
     <main>
       <SiteHeader />
       <section className="subpage-hero">
-        <p className="eyebrow">Archive</p>
         <h1>NYU Space Talks</h1>
+        <p className="eyebrow archive-subtitle">Archive</p>
       </section>
 
       <section className="section archive-index">

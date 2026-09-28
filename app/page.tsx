@@ -85,7 +85,7 @@ export default function Home() {
                   rel="noreferrer"
                   target="_blank"
                 >
-                  RSVP
+                  Register
                 </a>
               </div>
             </article>
@@ -96,7 +96,7 @@ export default function Home() {
       <section id="contact" className="section contact-section">
         <div>
           <p className="section-label">/ Contact</p>
-          <h2>Professor Alexander C. T. Geppert</h2>
+          <h2 className="contact-name">Professor Alexander C. T. Geppert</h2>
           <p>New York University</p>
           <p>NYU Shanghai</p>
           <p>53 Washington Square South, New York, NY 10012, USA</p>

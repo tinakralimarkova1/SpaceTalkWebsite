@@ -43,16 +43,16 @@ a {
 .site-background {
   background:
     url("/space-talks-fall-2026-background.jpg");
-  background-position: center;
+  background-position: center calc(50% + var(--parallax-y, 0px));
+  background-repeat: repeat-y;
   background-size: cover;
-  bottom: -22vh;
+  bottom: 0;
   left: 0;
   pointer-events: none;
   position: fixed;
   right: 0;
-  top: -22vh;
-  transform: translate3d(0, var(--parallax-y, 0px), 0);
-  will-change: transform;
+  top: 0;
+  will-change: background-position;
   z-index: -2;
 }
 
@@ -379,15 +379,35 @@ h3 {
 }
 
 .subpage-hero {
-  background:
-    radial-gradient(circle at 82% 20%, rgba(255, 180, 92, 0.14), transparent 24%),
-    radial-gradient(circle at 18% 18%, rgba(129, 150, 255, 0.18), transparent 28%),
-    linear-gradient(135deg, #070a14 0%, #111a2f 58%, #050711 100%);
-  padding: clamp(72px, 10vw, 130px) clamp(18px, 5vw, 64px);
+  align-items: center;
+  background: transparent;
+  container-type: inline-size;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 58vh;
+  padding: clamp(72px, 10vw, 130px) clamp(18px, 5vw, 64px) clamp(36px, 5vw, 65px);
+  text-align: center;
+  width: 100%;
 }
 
 .subpage-hero h1 {
-  max-width: 980px;
+  font-size: clamp(2rem, 9.5cqi, 7.5rem);
+  margin-left: auto;
+  margin-right: auto;
+  max-width: none;
+  text-align: center;
+  white-space: nowrap;
+  width: 100%;
+}
+
+.archive-subtitle {
+  align-self: stretch;
+  font-size: clamp(1.96rem, 4.2vw, 3.92rem);
+  letter-spacing: 0.04em;
+  margin: 0;
+  text-align: center;
+  width: 100%;
 }
 
 .subpage-hero p:not(.eyebrow) {
@@ -455,6 +475,11 @@ h3 {
 .contact-section {
   background: transparent;
   color: #ffffff;
+}
+
+.contact-name {
+  font-size: clamp(1.42rem, 2.12vw, 2.3rem);
+  line-height: 1.08;
 }
 
 .contact-section p,
