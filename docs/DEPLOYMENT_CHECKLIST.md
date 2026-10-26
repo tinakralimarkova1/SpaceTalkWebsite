@@ -48,7 +48,7 @@ Status: dependencies and newsletter protections implemented on main. The user re
 
 ## Create and verify the Vercel deployment
 
-- [ ] Confirm the release commit is pushed to origin/main before importing it into Vercel. The release includes newsletter code, poster assets, archive additions, browser tests, and handover docs; .env.local must remain excluded. Verify with `git status -sb` and `git rev-parse HEAD origin/main`.
+- [x] Release commit `cf5d987` pushed to origin/main on 2026-10-26, including newsletter code, poster assets, archive additions, browser tests, and handover docs. Local credentials remained excluded. The initial HTTP upload failed; retrying with per-command HTTP/1.1 and a larger request buffer succeeded without changing Git configuration. For future releases, verify with `git status -sb` and `git rev-parse HEAD origin/main`.
 - [ ] Decide who owns the Vercel project, GitHub repository, and domain for handover; verify the chosen plan supports that ownership and intended use. Do not assume a university site automatically qualifies as a personal Hobby project.
 - [ ] Import the GitHub repository into Vercel with main as the production branch. Set Root Directory to the repository folder containing this package.json, not the absolute Mac path.
 - [ ] Use the Next.js framework preset, npm ci for installation, npm run build, and the default Next.js output settings. Select a supported Node major compatible with package.json (Node 22.x matches its declared minimum).
