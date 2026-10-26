@@ -9,6 +9,7 @@ export function SiteHeader() {
       <nav aria-label="Primary navigation">
         <Link href="/#schedule">Fall 2026</Link>
         <Link href="/archive">Archive</Link>
+        <Link href="/posters">Posters</Link>
         <Link href="/#contact">Contact</Link>
       </nav>
     </header>

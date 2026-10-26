@@ -1,0 +1,156 @@
+.hero {
+  container-type: inline-size;
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 48vh;
+  padding: clamp(70px, 10vw, 130px) clamp(18px, 5vw, 64px) clamp(38px, 5vw, 64px);
+  text-align: center;
+}
+
+.hero h1 {
+  font-size: min(8rem, 18cqi);
+  margin: 0;
+  max-width: none;
+  text-align: center;
+  width: 100%;
+}
+
+.seasonNav {
+  border-bottom: 1px solid var(--line);
+  border-top: 1px solid var(--line);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 22px;
+  justify-content: center;
+  margin-inline: clamp(18px, 5vw, 64px);
+  padding: 20px 0;
+}
+
+.seasonNav a {
+  color: #d8deef;
+  font-size: clamp(1rem, 1.5vw, 1.25rem);
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.seasonNav a:hover,
+.seasonNav a:focus-visible {
+  color: var(--accent-dark);
+}
+
+.posterArchive {
+  padding: clamp(48px, 7vw, 90px) clamp(18px, 5vw, 64px);
+}
+
+.yearSection {
+  margin-inline: auto;
+  max-width: 1320px;
+  padding-bottom: clamp(64px, 9vw, 120px);
+  scroll-margin-top: 110px;
+}
+
+.yearSection > h2 {
+  border-bottom: 1px solid var(--line);
+  font-size: clamp(2.2rem, 5vw, 5rem);
+  margin-bottom: 28px;
+  padding-bottom: 18px;
+}
+
+.semesterGrid {
+  display: grid;
+  gap: clamp(24px, 4vw, 54px);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.posterCard {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: clamp(18px, 3vw, 30px);
+  scroll-margin-top: 110px;
+}
+
+.posterHeading {
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  justify-content: center;
+  margin-bottom: 22px;
+  text-align: center;
+}
+
+.posterHeading h3 {
+  font-size: clamp(1.6rem, 3vw, 2.8rem);
+  margin-bottom: 14px;
+}
+
+.posterPreview {
+  aspect-ratio: 792 / 1224;
+  background: #050711;
+  border: 1px solid rgba(210, 220, 255, 0.24);
+  display: block;
+  overflow: hidden;
+  width: 100%;
+}
+
+.posterPreview img {
+  display: block;
+  height: auto;
+  width: 100%;
+}
+
+.posterActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 18px;
+}
+
+.posterActions a {
+  justify-content: center;
+}
+
+.posterPlaceholder {
+  align-items: center;
+  aspect-ratio: 792 / 1224;
+  background: rgba(5, 7, 17, 0.58);
+  border: 1px dashed rgba(210, 220, 255, 0.3);
+  color: var(--muted);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 0;
+  padding: 24px;
+  text-align: center;
+}
+
+.posterPlaceholder span {
+  color: var(--accent-dark);
+  font-size: 0.78rem;
+  font-weight: 800;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+}
+
+.posterPlaceholder strong {
+  color: var(--foreground);
+  font-size: clamp(1.3rem, 2.4vw, 2rem);
+}
+
+@media (max-width: 820px) {
+  .hero {
+    min-height: 38vh;
+  }
+
+  .semesterGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .posterActions {
+    justify-content: flex-start;
+  }
+}

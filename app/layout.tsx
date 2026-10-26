@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { ParallaxBackground } from "./components/ParallaxBackground";
+import { SiteHeader } from "./components/SiteHeader";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -21,6 +22,8 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <ParallaxBackground />
+        <a className="skip-link" href="#main-content">Skip to content</a>
+        <SiteHeader />
         {children}
       </body>
     </html>

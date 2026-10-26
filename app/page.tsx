@@ -1,15 +1,13 @@
 import Image from "next/image";
-import { SiteHeader } from "./components/SiteHeader";
+import { NewsletterForm } from "./components/NewsletterForm";
 import { talks } from "./data";
 
 export default function Home() {
   return (
-    <main>
-      <SiteHeader />
-
+    <main id="main-content" tabIndex={-1}>
       <section id="about" className="hero">
         <div className="hero-copy">
-          <p className="eyebrow">History, Politics, Astroculture</p>
+          <p className="eyebrow hero-eyebrow">History, Politics, Astroculture</p>
           <h1>NYU Space Talks</h1>
           <div className="hero-actions">
             <a className="button primary" href="#schedule">
@@ -53,9 +51,14 @@ export default function Home() {
                   {[talk.time.split("/").slice(0, 2), talk.time.split("/").slice(2)].map(
                     (timeRow) => (
                       <span className="talk-time-row" key={timeRow.join("/")}>
-                        {timeRow.map((time) => (
-                          <span key={time}>{time}</span>
-                        ))}
+                        {timeRow.map((time) => {
+                          const [range, zone] = time.trim().split(/\s+/);
+                          return (
+                            <span className="talk-time" key={time}>
+                              <span className="talk-time-range">{range}</span>{" "}{zone}
+                            </span>
+                          );
+                        })}
                       </span>
                     ),
                   )}
@@ -104,26 +107,7 @@ export default function Home() {
             alexander.geppert@nyu.edu
           </a>
         </div>
-        <form className="signup-form">
-          <p>If you want to receive updates about future NYU Space Talks, please join our mailing list.</p>
-          <label>
-            First Name
-            <input name="firstName" type="text" />
-          </label>
-          <label>
-            Last Name
-            <input name="lastName" type="text" />
-          </label>
-          <label>
-            Organization
-            <input name="organization" type="text" />
-          </label>
-          <label>
-            Email
-            <input name="email" type="email" />
-          </label>
-          <button type="button">Submit</button>
-        </form>
+        <NewsletterForm />
       </section>
     </main>
   );

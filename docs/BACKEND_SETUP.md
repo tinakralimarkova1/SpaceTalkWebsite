@@ -1,6 +1,8 @@
 # Backend setup
 
-This project uses Supabase for the backend and is designed to deploy on Vercel. Both services can be used on their free plans while the site is small.
+The current `main` website uses Google Sheets for newsletter signups; see [the newsletter guide](NEWSLETTER_FORM.md). Supabase client helpers are retained for future work, but main's pages do not currently use them. Accounts and discussions are isolated on `feature/accounts-and-discussions` and are not part of this release.
+
+The remaining sections describe the Supabase foundation, not an active database-backed release. Before deploying, confirm current service limits and Vercel plan eligibility for the project's ownership and use.
 
 ## What is configured
 
@@ -51,7 +53,7 @@ For each feature, create tables in the Supabase SQL Editor or with versioned mig
 
 Suggested implementation order for this website:
 
-1. Newsletter signups.
+1. Keep newsletter signups in Google Sheets unless a deliberate migration is requested.
 2. Talks, speakers, seasons, and archive records.
 3. Research posts and searchable metadata.
 4. User accounts and profiles.
@@ -71,9 +73,9 @@ The browser and server clients are ready for authentication, but authentication 
 ## 6. Deploy through Vercel
 
 1. Push the project to GitHub.
-2. Import the repository at https://vercel.com/new and select the Free/Hobby plan.
+2. Import the repository at https://vercel.com/new and select a plan appropriate to the project's ownership and use.
 3. In the Vercel project, open Settings > Environment Variables.
-4. Add `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` for Production, Preview, and Development.
+4. For a release that actually uses Supabase, add `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` to the appropriate environments. They are optional for the current main release. Keep testing data separate from production.
 5. Deploy or redeploy after adding the variables. Environment-variable changes do not affect deployments that already exist.
 6. Add the final Vercel URL and custom domain to Supabase Auth redirect URLs before enabling login.
 

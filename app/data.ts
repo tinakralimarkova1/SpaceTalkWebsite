@@ -1,4 +1,21 @@
-export const archiveSeasons = [
+type ArchiveParticipant = { name: string; affiliation?: string };
+
+type ArchiveTalk = {
+  title: string;
+  speaker?: string;
+  affiliation?: string;
+  comment?: string;
+  date: string;
+  time: string;
+  location?: string;
+  context?: string;
+  chair?: string;
+  discussant?: string;
+  presentations?: (ArchiveParticipant & { title: string })[];
+  participants?: ArchiveParticipant[];
+};
+
+export const archiveSeasons: { season: string; slug: string; talks: ArchiveTalk[] }[] = [
   {
     season: "Spring 2026",
     slug: "spring-2026",
@@ -388,12 +405,82 @@ export const archiveSeasons = [
   {
     season: "Summer 2021",
     slug: "summer-2021",
-    talks: [],
+    talks: [
+      {
+        title: "Planetary Poetics and Politics in Post-War Europe",
+        context: "Europe's Past, Present, and Future: Utopias and Dystopias. 27th International Conference of Europeanists, 21-25 June 2021. Mini-symposium 'European Space Futures, Real and Imagined'.",
+        date: "Thursday, 24 June 2021",
+        time: "10:00-11:30 EDT",
+        chair: "Alexander C.T. Geppert (New York University and NYU Shanghai)",
+        presentations: [
+          { title: "From Dystopia on Earth to Utopia in Space, 1944-1969", name: "Robert Poole", affiliation: "University of Central Lancashire" },
+          { title: "Speaking Space, 1954-1988", name: "Alexander Geppert" },
+          { title: "Outer Space and the Cosmos in Environmental Poetry, 1970-1990", name: "Thore Bjørnvig", affiliation: "University of Copenhagen" },
+          { title: "Europe, Utopia and the late Cold War", name: "Tilmann Siebeneichner", affiliation: "Humboldt-Universität zu Berlin" },
+          { title: "Forgetting Nâzim Hikmet on the Ship to Mars", name: "Nicola Thomas", affiliation: "University of Bristol" },
+        ],
+        discussant: "Caitríona Ní Dhúill (University College Cork)",
+      },
+      {
+        title: "European Astroculture and Beyond: A Roundtable",
+        context: "Europe's Past, Present, and Future: Utopias and Dystopias. 27th International Conference of Europeanists, 21-25 June 2021. Mini-symposium 'European Space Futures, Real and Imagined'.",
+        date: "Thursday, 24 June 2021",
+        time: "12:00-13:30 EDT",
+        chair: "Alexander C.T. Geppert (New York University and NYU Shanghai)",
+        participants: [
+          { name: "Martin Collins", affiliation: "Smithsonian National Air and Space Museum" },
+          { name: "De Witt Douglas Kilgore", affiliation: "Indiana University" },
+          { name: "Nina Wormbs", affiliation: "KTH Royal Institute of Technology" },
+          { name: "Richard Toye", affiliation: "University of Exeter" },
+        ],
+      },
+      {
+        title: "Imagining, Limiting, Militarizing: European Astroculture and Beyond",
+        context: "Tensions of Europe Digital Workshop Festival 2021, 28 June - 2 July 2021",
+        date: "Monday, 28 June 2021",
+        time: "17:00-19:00 CET",
+        chair: "Alexander C.T. Geppert (New York University and NYU Shanghai)",
+        participants: [
+          { name: "Martin Collins", affiliation: "Smithsonian National Air and Space Museum" },
+          { name: "Valerie Olson", affiliation: "UC Irvine" },
+          { name: "Amanda Rees", affiliation: "University of York" },
+          { name: "Tilmann Siebeneichner", affiliation: "Humboldt-Universität zu Berlin" },
+          { name: "Guillaume de Syon", affiliation: "Albright College" },
+          { name: "Brad Tabas", affiliation: "ENSTA Bretagne" },
+        ],
+      },
+    ],
   },
   {
     season: "Spring 2021",
     slug: "spring-2021",
-    talks: [],
+    talks: [
+      {
+        title: "Dark Skies: Geography, Geopolitics and Geohistory of Outer Space",
+        speaker: "Daniel Deudney",
+        affiliation: "Johns Hopkins University",
+        date: "Wednesday, 10 February 2021",
+        time: "14:00-15:30 EST",
+        location: "Location: Online",
+      },
+      {
+        title: "The Eighth Continent: Lunar Enclosures in the Twenty-First Century Race for the Moon",
+        speaker: "Tamara Álvarez",
+        affiliation: "The New School",
+        date: "Wednesday, 24 March 2021",
+        time: "14:00-15:30 EST",
+        location: "Location: Online",
+      },
+      {
+        title: "Militant Astroculture and the Cold War: A Roundtable",
+        speaker: "Alexander Geppert, Daniel Brandau and Tilmann Siebeneichner",
+        affiliation: "NYU, FU Berlin and HU Berlin",
+        comment: "In conversation with Martin Collins (Smithsonian National Air and Space Museum), Amanda Rees (York) and Guillaume de Syon (Albright College).",
+        date: "Wednesday, 21 April 2021",
+        time: "14:00-15:30 EST",
+        location: "Location: Online",
+      },
+    ],
   },
 ];
 
