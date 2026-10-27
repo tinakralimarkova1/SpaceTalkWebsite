@@ -137,7 +137,7 @@ function PosterEntry({ season }: { season: Season }) {
 export default function PostersPage() {
   return (
     <main id="main-content" tabIndex={-1}>
-      <section className={styles.hero}>
+      <section className="subpage-hero">
         <p className="eyebrow">Season Archive</p>
         <h1>Posters</h1>
       </section>

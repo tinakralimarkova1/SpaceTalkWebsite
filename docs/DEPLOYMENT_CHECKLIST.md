@@ -6,6 +6,8 @@ Project directory: /Users/tinakralimarkova/NYU_SpaceTalks/SpaceTalkWebsite
 
 Status: dependencies and newsletter protections implemented on main. The user reported deploying the Sheet-only Apps Script revision. A subsequent retry of the approved existing test identity returned HTTP 201 and the normal success message through the website API. The earlier live signup/retry produced one row, confirmed by the user. Public launch is not yet cleared; no Vercel deployment or DNS change was performed.
 
+Latest revision (2026-10-26): owner email notifications have been restored at the user's request. This revision passed 31 isolated regression tests and lint. Following Google setup/redeployment, the live signup and retry both returned HTTP 201; the user confirmed one Sheet row, sent status, and actual email receipt. Automatic five-minute scheduling still needs observation separately from the manually requested worker run. Vercel acceptance testing remains outstanding.
+
 ## Verified locally
 
 - [x] Production build and TypeScript check passed (`npm run build`).
@@ -27,9 +29,9 @@ Status: dependencies and newsletter protections implemented on main. The user re
 - [x] Updated Next.js and eslint-config-next to 16.4.3, sharp to 0.35.5, source-map-js to 1.2.2, and the additionally flagged dev dependency zod to 4.6.7. Full npm audit reports zero known vulnerabilities; lint, production build, and 24 current regression tests pass.
 - [x] Verify the newsletter success message with a real Google submission. The live signup and retry both returned HTTP 201 and visibly showed success. The user confirmed exactly one Sheet row. Desktop/mobile browser tests also passed for mocked success and rate-limit states. The historical false-error cause was not conclusively established; the updated flow is now verified to return success.
 - [x] Escape formula-like submitted text before writing to Sheets. Regression tests verify literal cell writes. Confirm with a harmless value such as =1+1 in a separate test Sheet after deployment.
-- [x] Add locked, normalized-email deduplication. Retries preserve the existing row without sending notifications. Automated coverage passes, and the user confirmed the live test produced exactly one row after repeated submissions.
+- [x] Add locked, normalized-email deduplication. Retries preserve the existing row without queuing another notification. Automated coverage passes, and the user confirmed the earlier live test produced exactly one row after repeated submissions.
 - [x] Add persistent Apps Script rate limits: five valid attempts/client/ten minutes and 200 globally/24-hour window. The route forwards an HMAC of Vercel's trusted IP header; raw IPs are not sent to Google. Honeypot, size limits, and same-origin checks remain. These limits protect downstream writes, not all traffic or execution quotas.
-- [x] Superseded notification requirement: removed email sending and queue creation. Setup retires old notification triggers, preserves existing rows, and leaves historical extra columns untouched. See docs/NEWSLETTER_FORM.md.
+- [x] Restored owner notifications with a configurable recipient, five-minute processing, quota checks, and bounded retries. Existing rows and unrelated columns are preserved without historical emails. See docs/NEWSLETTER_FORM.md; live verification remains below.
 - [x] Fixed the invalid archive-heading margin declaration in app/globals.css.
 - [x] Added three Spring 2021 events and three Summer 2021 sessions from the original program pages, including panel papers and roundtable participants. See docs/ARCHIVE_CONTENT.md for source and time-zone notes.
 - [ ] Review current-season content and registration behavior for completed events. As of this review, the September 15 and October 13 talks have passed, but still show Register.
@@ -39,9 +41,10 @@ Status: dependencies and newsletter protections implemented on main. The user re
 
 - [x] User reports replacing Apps Script, running setup, and deploying a New version. The endpoint returned the new structured validation response and successful live signup/retry responses.
 - [x] User reports deploying the Sheet-only revision; a subsequent live retry returned HTTP 201 and the expected success message.
-- [ ] Confirm setupNewsletterForm was run and the obsolete notification trigger is removed. The new source contains no email sending; any remaining old-handler invocation is a no-op. Recheck the Sheet has only one test row and remove the agreed test entry when finished.
+- [x] User confirmed notification setup and deployment. Live signup/retry succeeded, and the user confirmed one test row, sent status, and receipt of the notification on 2026-10-26.
+- [ ] Observe the five-minute notification trigger processing a new signup without manually running the worker; remove the labeled test row when finished.
 - [ ] Confirm production uses the intended Google Sheet and Google account; keep test data separate from the actual mailing list.
-- [ ] Verify obsolete notification triggers are removed. No notification recipient or tester email is required for the Sheet-only flow.
+- [ ] Verify one intended notification trigger and confirm NOTIFICATION_EMAIL is the tester address initially; change it to the professor's approved address for handover. Other editors should remove duplicate old triggers they own.
 - [ ] Ensure the handover owner has appropriate access to the Sheet and script, and document which account deployed the script and authorizes Sheet access.
 - [ ] Add a brief privacy notice explaining the submitted data, purpose, and contact for removal; establish an unsubscribe/removal process in the mailing workflow.
 - [ ] Confirm the Sheet is private and shared only with the people managing the mailing list.
@@ -56,7 +59,7 @@ Status: dependencies and newsletter protections implemented on main. The user re
 - [ ] Configure a separate test Sheet/script for Preview deployments if previews will accept signups. Do not indiscriminately point every preview at the production mailing list.
 - [ ] Supabase variables are optional for the current main release because its pages do not use the clients. Keep accounts/discussions on their feature branch; database/auth activation is a separate launch.
 - [ ] Deploy to a Vercel URL first and check build/function logs. Verify all routes, downloads, and image optimization there.
-- [ ] Submit one intentional test signup on Vercel: exactly one Sheet row and a visible website success message, with no notification email. Test a retry to confirm duplicate handling.
+- [ ] Submit one intentional new test signup on Vercel: exactly one Sheet row, visible website success, and an owner notification after processing. Test a retry to confirm no additional row or notification is queued.
 - [ ] Test an unavailable backend in a test environment, confirming truthful feedback and that a retry cannot duplicate an entry.
 
 ## Browser and accessibility checks

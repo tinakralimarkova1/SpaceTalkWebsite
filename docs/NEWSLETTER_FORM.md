@@ -1,24 +1,38 @@
-# Newsletter signup: Google Sheets only
+# Newsletter signup: Google Sheets and owner notifications
 
 ## What happens when someone submits
 
-The browser submits to `/api/newsletter`. Next.js validates the fields and forwards them to a secret-protected Google Apps Script web app. The script saves one row and returns success.
+The browser submits to `/api/newsletter`. Next.js validates the fields and forwards them to a secret-protected Google Apps Script web app. The script saves one row with a pending notification and returns success. A background trigger checks for queued notifications every five minutes.
 
-The Sheet records **Timestamp, First name, Last name, Organization, Email**, in that order. Organization is optional. No notification, confirmation, or welcome email is sent. The website's success message confirms the Sheet entry, not an email.
+The Sheet records **Timestamp, First name, Last name, Organization, Email**, in that order. Organization is optional. Additional tracking columns record notification status, attempts, last/next attempt, sent time, and a sanitized error. The notification goes only to the owner configured in `NOTIFICATION_EMAIL`, initially `tinathetinytuna@gmail.com`. It includes the name, email, organization, and a link to the private Sheet. No confirmation or welcome email is sent to the subscriber. Website success confirms the Sheet entry, not email delivery.
 
-The revised requirement supersedes the earlier professor-notification and email-retry workflow. No Supabase table or new paid service is required.
+This revision restores owner notifications after the earlier Sheet-only version. No Supabase table or additional email service is required. Actual mail delivery still depends on Google authorization, sending quotas, and recipient spam filtering.
 
 ## Update the existing Google script
 
-1. In Apps Script's **Triggers** panel, delete the old `retryPendingNotifications` trigger to stop scheduled notifications immediately.
-2. Replace the script with `google-apps-script/newsletter-signup.gs` from this repository and save.
-3. Run `setupNewsletterForm` using the same Google account that installed the old trigger.
-4. Open **Deploy > Manage deployments > Edit > New version > Deploy**. Keep the same `/exec` URL.
-5. Verify a signup is recorded once, a retry does not add another row, and the website displays success.
+1. Open the target Sheet's **Extensions > Apps Script**. Replace the script with the contents of `google-apps-script/newsletter-signup.gs` and save.
+2. Run `setupNewsletterForm` using the account that will own the notification trigger. Approve Google's requested email-sending permissions as well as Sheet access. If the project uses explicit manifest scopes, include `https://www.googleapis.com/auth/script.send_mail`.
+3. In **Project Settings > Script Properties**, confirm `NOTIFICATION_EMAIL` is `tinathetinytuna@gmail.com`. Setup defaults to this address but preserves a previously configured recipient, so explicitly check it. Leave the existing `NEWSLETTER_FORM_SECRET` unchanged.
+4. Open **Deploy > Manage deployments > Edit > New version > Deploy**. Keep the same `/exec` URL. The web app must still execute as the deploying owner.
+5. Submit one new test identity, confirm one Sheet row and website success, then run `retryPendingNotifications` manually or wait for the five-minute trigger. Confirm status becomes `sent` and check the recipient inbox/spam folder. Retrying that signup must not create a second row or another notification.
 
-Setup preserves existing rows and the shared secret. It removes the old notification recipient property and notification triggers owned by the current account. It does not remove unrelated triggers. A no-op function remains for old notification triggers owned by another editor so they cannot send mail using the new saved code. Ask those editors to remove their obsolete triggers too.
+Setup preserves existing rows and the shared secret, adds tracking columns after any existing columns, and records their starting position in `SIGNUP_NOTIFICATION_COLUMN`. Rerunning setup validates and reuses those columns. Do not move or delete them. Historical signup rows have no new pending status and do not generate retroactive mail, including when those existing subscribers resubmit.
 
-Existing notification columns F-K are left untouched to avoid deleting historical data. After disabling the old workflow and deploying this version, those columns can be hidden or removed if they were created solely for notifications. Keep A-E in order. Old pending labels no longer indicate active work. A notification already in progress before the change cannot be recalled.
+Setup replaces notification triggers owned by the account running it with one five-minute trigger; unrelated triggers are untouched. Other editors should remove duplicate old triggers they own. A shared script lock prevents simultaneous workers from sending the same pending row. Historical extra columns remain untouched and may be hidden, but do not delete columns before the new tracking block without updating its configured position. The new column names begin with `Signup notification` to distinguish them from old records.
+
+## Change the recipient later
+
+Open **Apps Script > Project Settings > Script Properties** and change `NOTIFICATION_EMAIL` to the professor's approved email address. Save. No website changes or new web-app deployment are needed for a property-only change. Already queued notifications use the address configured when they are processed; sent notifications are not resent. Sender identity remains the Google account that owns the trigger, not the recipient. Transferring that account's ownership/authorization is a separate handover step.
+
+## Retry and failure behavior
+
+- Runs process up to ten due notifications, with a twenty-second processing budget between sends. Backlogs may take multiple trigger runs.
+- A failed send retries after increasing delays (5, 10, 20, then 40 minutes), stopping at five attempts with status `failed`.
+- If the sending quota is exhausted, rows stay queued without consuming attempts. They resume on a later run when quota is available.
+- Missing permissions/configuration or unavailable Sheets can fail the trigger itself; inspect **Executions** if pending rows stop progressing. `sent` means Google accepted the send, not proof of inbox delivery.
+- To retry a failed notification after resolving the cause, set its `Signup notification status` to `pending`, attempts to `0`, and clear its next-attempt cell; then run `retryPendingNotifications`.
+- Duplicate form submissions do not queue additional mail. However, exactly-once delivery cannot be guaranteed: if Google accepts an email but the execution stops before recording `sent`, a later retry may send it again. The Sheet row itself remains deduplicated.
+- Old subscribers are not backfilled automatically. Use a new email identity for the acceptance test.
 
 ## First-time setup
 
@@ -60,22 +74,23 @@ The upstream request times out after 45 seconds within a 60-second function budg
 
 ## Maintenance and handover
 
-Keep the Sheet private and give the intended owner access to the Sheet, Apps Script, Vercel, and the repository. The Google account deploying the web app authorizes Sheet access. No email recipient needs configuration.
+Keep the Sheet private and give the intended owner access to the Sheet, Apps Script, Vercel, and the repository. The Google account deploying the web app authorizes Sheet access. Configure `NOTIFICATION_EMAIL` only for the intended mailing-list administrator because these emails contain submitted personal information.
 
 Check Apps Script **Executions** and Vercel function logs when a signup fails. Logs from the website use sanitized error categories, not email addresses, secrets, or raw upstream bodies.
 
-Saving script source is not enough to update its web endpoint: deploy a **New version** each time. Document the active deployment owner. Remove obsolete email permissions if explicitly declared in an Apps Script manifest; the current source does not use MailApp or GmailApp.
+Saving script source is not enough to update its web endpoint: deploy a **New version** after code changes. Document both the deployment owner and notification trigger owner. This script uses MailApp for notifications; the trigger reads saved script code rather than a pinned web-app version.
 
 ## Verification
 
-Run `npm test`, `npm run lint`, `npm run build`, and `npm audit`. The isolated regression tests never contact Google. They cover validation, success/error responses, rate limits, formula escaping, deduplication, and removal of the old notification workflow.
+Run `npm test`, `npm run lint`, `npm run build`, and `npm audit`. The isolated regression tests never contact Google. They cover validation, success/error responses, rate limits, formula escaping, deduplication, queued delivery/retries, quota exhaustion, recipient changes, concurrent workers, and upgrades without historical mail.
 
-For live acceptance, submit one approved test identity, confirm exactly one row and visible success, then retry and confirm no second row. Check that no notification trigger remains. Test formula-like inputs such as =1+1 in a separate test Sheet. Remove agreed test rows after verification.
+For live acceptance, follow the new-identity signup and notification test above. Test formula-like inputs such as =1+1 in a separate test Sheet. Remove agreed test rows after verification.
 
-On 2026-10-25, the user reported deploying the Sheet-only revision. A subsequent retry using the approved existing test identity returned HTTP 201 and the normal success message through the website API. The earlier signup/retry was confirmed by the user to produce exactly one row. Trigger removal and the final Sheet contents require owner confirmation. Repeat the basic signup check on Vercel after deployment, since local tests do not verify Vercel environment variables.
+Historical verification: on 2026-10-25 the user reported deploying the Sheet-only revision, and a live retry returned HTTP 201. On 2026-10-26 the owner-notification revision passed 31 local regression tests. Initial live attempts returned an Apps Script error. After the user reran setup and confirmed SIGNUP_NOTIFICATION_COLUMN was 6, the same test signup and retry both returned HTTP 201 with visible website success. The user then confirmed exactly one Notification Verification Test row, status sent, and receipt of the notification at the tester inbox. This verifies the local website through the deployed Google script and actual email delivery, with receipt and Sheet state confirmed by the owner. The scheduled five-minute trigger was not independently observed; the confirmation followed a request to run retryPendingNotifications manually. Repeat the signup check on Vercel after deployment, since local tests do not verify Vercel environment variables. Remove the labeled test row when finished if it should not receive future mailing-list updates.
 
 ## References
 
 - [Google Sheets appendRow behavior](https://developers.google.com/apps-script/reference/spreadsheet/sheet#appendRow(Object))
 - [Google installable triggers](https://developers.google.com/apps-script/guides/triggers/installable)
+- [Google MailApp](https://developers.google.com/apps-script/reference/mail/mail-app)
 - [Vercel request headers](https://vercel.com/docs/headers/request-headers)

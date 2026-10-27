@@ -8,8 +8,8 @@ export const metadata: Metadata = {
   description:
     "A lecture series on the history, politics, and astroculture of outer space.",
   icons: {
-    icon: "/favicon.svg",
-    shortcut: "/favicon.svg",
+    icon: { url: "/space-favicon.png", type: "image/png", sizes: "64x64" },
+    shortcut: "/space-favicon.png",
   },
 };
 

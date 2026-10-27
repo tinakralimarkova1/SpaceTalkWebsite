@@ -5,6 +5,13 @@ const SHEET_HEADERS = [
 const RATE_WINDOW_MS = 10 * 60 * 1000;
 const RATE_PER_CLIENT = 5;
 const RATE_PER_DAY = 200;
+const DEFAULT_NOTIFICATION_EMAIL = "tinathetinytuna@gmail.com";
+const NOTIFICATION_HEADERS = [
+  "Signup notification status", "Signup notification attempts",
+  "Signup notification last attempt", "Signup notification next attempt",
+  "Signup notification sent at", "Signup notification error",
+];
+const MAX_NOTIFICATION_ATTEMPTS = 5;
 
 function setupNewsletterForm() {
   const spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
@@ -30,15 +37,26 @@ function setupNewsletterForm() {
     }
     sheet.getRange(1, 1, 1, SHEET_HEADERS.length).setValues([SHEET_HEADERS]);
     sheet.setFrozenRows(1);
-    // Retire the previous email workflow without deleting signup data or extra columns.
+    // Append tracking columns after any historical or unrelated columns.
+    if (!properties.getProperty("SIGNUP_NOTIFICATION_COLUMN")) {
+      const column = Math.max(SHEET_HEADERS.length, sheet.getLastColumn()) + 1;
+      sheet.getRange(1, column, 1, NOTIFICATION_HEADERS.length).setValues([NOTIFICATION_HEADERS]);
+      properties.setProperties({ SIGNUP_NOTIFICATION_COLUMN: String(column) });
+    }
+    notificationColumn_(sheet, properties);
+    properties.setProperties({
+      NOTIFICATION_EMAIL: properties.getProperty("NOTIFICATION_EMAIL") || DEFAULT_NOTIFICATION_EMAIL,
+    });
+    notificationRecipient_(properties);
+    // One trigger per setup owner; the shared lock also protects against other owners' triggers.
     ScriptApp.getProjectTriggers().forEach(function (trigger) {
       if (trigger.getHandlerFunction() === "retryPendingNotifications") {
         ScriptApp.deleteTrigger(trigger);
       }
     });
-    properties.deleteProperty("NOTIFICATION_EMAIL");
+    ScriptApp.newTrigger("retryPendingNotifications").timeBased().everyMinutes(5).create();
     SpreadsheetApp.flush();
-    console.log("Setup complete. Find NEWSLETTER_FORM_SECRET in Project Settings > Script Properties. Signups are saved to the Sheet only; no emails are sent.");
+    console.log("Setup complete. Check NOTIFICATION_EMAIL and NEWSLETTER_FORM_SECRET in Project Settings > Script Properties. New signups queue an email notification.");
   } finally {
     lock.releaseLock();
   }
@@ -75,9 +93,13 @@ function doPost(event) {
         // Same response for new and existing addresses; never disclose membership.
         return jsonResponse_({ ok: true });
       }
-      sheet.appendRow([
+      const column = notificationColumn_(sheet, properties);
+      const row = [
         new Date(), literalCell_(firstName), literalCell_(lastName), literalCell_(organization), literalCell_(email),
-      ]);
+      ];
+      while (row.length < column - 1) row.push("");
+      // Signup and pending status are saved in one row write, before returning success.
+      sheet.appendRow(row.concat(["pending", 0, "", "", "", ""]));
       SpreadsheetApp.flush();
       return jsonResponse_({ ok: true });
     } finally {
@@ -108,10 +130,84 @@ function consumeRateLimit_(properties, clientKey, now) {
   return 0;
 }
 
-// Compatibility no-op for old triggers, including triggers owned by another editor.
-// setupNewsletterForm removes triggers owned by the account running setup.
 function retryPendingNotifications() {
-  return;
+  const lock = LockService.getScriptLock();
+  if (!lock.tryLock(1000)) return;
+  try {
+    const properties = PropertiesService.getScriptProperties();
+    const recipient = notificationRecipient_(properties);
+    const sheet = signupSheet_(properties);
+    const column = notificationColumn_(sheet, properties);
+    if (sheet.getLastRow() < 2) return;
+    const rows = sheet.getRange(2, 1, sheet.getLastRow() - 1, column + NOTIFICATION_HEADERS.length - 1).getValues();
+    const deadline = Date.now() + 20000;
+    let processed = 0;
+    for (let index = 0; index < rows.length; index++) {
+      if (processed >= 10 || Date.now() >= deadline) break;
+      const row = rows[index];
+      const state = row.slice(column - 1);
+      // Blank states belong to historical signups and must not send retroactive mail.
+      if (state[0] !== "pending" && state[0] !== "retry") continue;
+      if (state[3] && new Date(state[3]).getTime() > Date.now()) continue;
+      const range = sheet.getRange(index + 2, column, 1, NOTIFICATION_HEADERS.length);
+      const attempts = Number(state[1]) || 0;
+      if (attempts >= MAX_NOTIFICATION_ATTEMPTS) {
+        state[0] = "failed";
+        range.setValues([state]);
+        continue;
+      }
+      if (MailApp.getRemainingDailyQuota() < 1) break;
+      processed++;
+      const attemptedAt = new Date();
+      const nextAttempt = new Date(Date.now() + 5 * 60 * 1000 * Math.pow(2, attempts));
+      range.setValues([["retry", attempts + 1, attemptedAt, nextAttempt, "", ""]]);
+      SpreadsheetApp.flush();
+      try {
+        MailApp.sendEmail({
+          to: recipient,
+          subject: "NYU Space Talks: new newsletter signup",
+          body: [
+            "A new subscriber joined the NYU Space Talks mailing list.", "",
+            "Name: " + row[1] + " " + row[2],
+            "Email: " + row[4],
+            "Organization: " + (row[3] || "Not provided"), "",
+            "View the mailing list: https://docs.google.com/spreadsheets/d/" + properties.getProperty("SPREADSHEET_ID"),
+          ].join("\n"),
+          name: "NYU Space Talks",
+        });
+      } catch {
+        range.setValues([[
+          attempts + 1 >= MAX_NOTIFICATION_ATTEMPTS ? "failed" : "retry",
+          attempts + 1, attemptedAt, nextAttempt, "", "Mail send failed; check authorization and sending quota.",
+        ]]);
+        continue;
+      }
+      range.setValues([["sent", attempts + 1, attemptedAt, "", new Date(), ""]]);
+      SpreadsheetApp.flush();
+    }
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function notificationRecipient_(properties) {
+  const recipient = (properties.getProperty("NOTIFICATION_EMAIL") || "").trim();
+  if (!/^[^\s@,;<>]+@[^\s@,;<>]+\.[^\s@,;<>]+$/.test(recipient)) {
+    throw new Error("Set NOTIFICATION_EMAIL to one recipient in Script Properties.");
+  }
+  return recipient;
+}
+
+function notificationColumn_(sheet, properties) {
+  const column = Number(properties.getProperty("SIGNUP_NOTIFICATION_COLUMN"));
+  if (!Number.isInteger(column) || column <= SHEET_HEADERS.length) {
+    throw new Error("Run setupNewsletterForm before enabling notifications.");
+  }
+  const headers = sheet.getRange(1, column, 1, NOTIFICATION_HEADERS.length).getValues()[0];
+  if (headers.some(function (header, index) { return header !== NOTIFICATION_HEADERS[index]; })) {
+    throw new Error("Notification columns changed. Restore their headers and position.");
+  }
+  return column;
 }
 
 function signupSheet_(properties) {

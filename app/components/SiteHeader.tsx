@@ -1,11 +1,18 @@
 import Link from "next/link";
+import Image from "next/image";
 
 export function SiteHeader() {
   return (
     <header className="site-header">
-      <Link className="nyu-link" href="/" aria-label="NYU Space Talks home">
-        NYU
-      </Link>
+      <a className="nyu-link" href="https://as.nyu.edu">
+        <Image
+          src="/nyu-arts-and-science.svg"
+          alt="NYU Arts & Science"
+          width={299}
+          height={30}
+          priority
+        />
+      </a>
       <nav aria-label="Primary navigation">
         <Link href="/#schedule">Fall 2026</Link>
         <Link href="/archive">Archive</Link>

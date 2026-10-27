@@ -31,7 +31,17 @@ for (const width of [320, 390, 768, 820, 1024, 1440]) {
       await expect(page.locator("h1")).toHaveCount(1);
       await expect(page.getByRole("main")).toHaveCount(1);
       await expect(page.getByRole("banner")).toHaveCount(1);
-      const overflow = await page.evaluate(() => [...document.querySelectorAll<HTMLElement>("main *")]
+      await expect(page.getByRole("banner").getByRole("link", { name: "NYU Arts & Science" }))
+        .toHaveAttribute("href", "https://as.nyu.edu");
+      const fontSizes = await page.evaluate(() => [...new Set(
+        [...document.querySelectorAll<HTMLElement>("main *, .site-header *, .skip-link")]
+          .filter((element) => element.getBoundingClientRect().width > 0 &&
+            !element.closest(".honeypot-field, h1") &&
+            [...element.childNodes].some((node) => node.nodeType === Node.TEXT_NODE && node.textContent?.trim()))
+          .map((element) => getComputedStyle(element).fontSize),
+      )]);
+      expect(fontSizes.every((size) => ["16px", "20px", "32px", "56px"].includes(size))).toBe(true);
+      const overflow = await page.evaluate(() => [...document.querySelectorAll<HTMLElement>("main *, .site-header *")]
         .filter((element) => {
           const box = element.getBoundingClientRect();
           return box.width > 0 && !element.closest(".honeypot-field") &&
@@ -39,6 +49,15 @@ for (const width of [320, 390, 768, 820, 1024, 1440]) {
               [".talk-time-row", ".archive-season-heading", "h1", ".signup-form"].some((selector) => element.matches(selector)));
         }).map((element) => element.className || element.tagName));
       expect(overflow).toEqual([]);
+      if (route === "/archive") {
+        const mismatchedHeadings = await page.locator(".archive-season-heading").evaluateAll((headings) =>
+          headings.filter((heading) => {
+            const title = heading.querySelector("h2");
+            const number = heading.querySelector(".archive-season-number");
+            return title && number && getComputedStyle(title).fontSize !== getComputedStyle(number).fontSize;
+          }).map((heading) => heading.textContent));
+        expect(mismatchedHeadings).toEqual([]);
+      }
       if (route === "/") {
         for (const range of await page.locator(".talk-time-range").all()) {
           expect(await range.evaluate((element) => {

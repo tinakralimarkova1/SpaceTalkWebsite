@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import vm from "node:vm";
 import { randomUUID } from "node:crypto";
 
-export function createAppsScriptHarness() {
+export function createAppsScriptHarness({ beforeSetup } = {}) {
   const state = {
     now: Date.now(), rows: [["Timestamp", "First name", "Last name", "Organization", "Email"]],
     properties: { NEWSLETTER_FORM_SECRET: "test-secret" }, triggers: [], mail: [],
@@ -21,6 +21,7 @@ export function createAppsScriptHarness() {
   }
   const sheet = {
     getLastRow: () => state.rows.length,
+    getLastColumn: () => Math.max(...state.rows.map((row) => row.length)),
     getRange(row, col, height = 1, width = 1) {
       const range = {
         getValues: () => Array.from({ length: height }, (_, r) =>
@@ -87,6 +88,7 @@ export function createAppsScriptHarness() {
     },
   });
   vm.runInContext(readFileSync(new URL("../google-apps-script/newsletter-signup.gs", import.meta.url), "utf8"), script);
+  beforeSetup?.(state);
   script.setupNewsletterForm();
   const valid = {
     secret: "test-secret", firstName: "Test", lastName: "Person", organization: "NYU",

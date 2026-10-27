@@ -23,8 +23,8 @@ export default function ArchivePage() {
   return (
     <main id="main-content" tabIndex={-1}>
       <section className="subpage-hero">
-        <h1>NYU Space Talks</h1>
-        <p className="eyebrow archive-subtitle">Archive</p>
+        <p className="eyebrow">NYU Space Talks</p>
+        <h1>Archive</h1>
       </section>
 
       <section className="section archive-index">
