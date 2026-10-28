@@ -32,7 +32,7 @@ The shared header uses the supplied NYU Arts & Science logo at `public/nyu-arts-
 
 The browser-tab icon is `public/space-favicon.png`, converted from the supplied `space.png.avif` with transparency preserved. All pages use this icon through the metadata in `app/layout.tsx`.
 
-Typography uses four shared tokens in `app/globals.css`: `--font-xl` (3.5rem / 56px), `--font-lg` (2rem / 32px), `--font-md` (1.25rem / 20px), and `--font-sm` (1rem / 16px). These are the default sizes at a 16px root font; they respect user text resizing. Hero h1 titles are the intentional exception: Home, Archive, and Posters retain their larger container-responsive title sizes. Keep all other text on the shared scale.
+Typography uses four shared tokens in `app/globals.css`: `--font-xl` (3.5rem / 56px), `--font-lg` (2rem / 32px), `--font-md` (1.25rem / 20px), and `--font-sm` (1rem / 16px). These are the default sizes at a 16px root font; they respect user text resizing. Hero h1 titles retain their larger container-responsive title sizes. The primary navigation is also an intentional exception on phones up to 600px wide: 0.8125rem (13px) links fit on one row with 44px-tall tap targets, while still allowing wrapping with enlarged text. Keep all other text on the shared scale.
 
 - [Vercel deployment checklist](docs/DEPLOYMENT_CHECKLIST.md)
 - [Backend and Supabase setup](docs/BACKEND_SETUP.md)

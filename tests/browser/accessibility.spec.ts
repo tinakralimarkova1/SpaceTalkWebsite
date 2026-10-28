@@ -37,6 +37,7 @@ for (const width of [320, 390, 768, 820, 1024, 1440]) {
         [...document.querySelectorAll<HTMLElement>("main *, .site-header *, .skip-link")]
           .filter((element) => element.getBoundingClientRect().width > 0 &&
             !element.closest(".honeypot-field, h1") &&
+            !(innerWidth <= 600 && element.matches(".site-header nav a")) &&
             [...element.childNodes].some((node) => node.nodeType === Node.TEXT_NODE && node.textContent?.trim()))
           .map((element) => getComputedStyle(element).fontSize),
       )]);
@@ -74,6 +75,26 @@ for (const width of [320, 390, 768, 820, 1024, 1440]) {
       }
     });
   }
+}
+
+for (const width of [320, 390, 430, 600]) {
+  test(`phone navigation stays on one row at ${width}px`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 844 });
+    await page.goto("/");
+    const links = page.getByRole("navigation", { name: "Primary navigation" }).getByRole("link");
+    const boxes = await links.evaluateAll((elements) => elements.map((element) => {
+      const box = element.getBoundingClientRect();
+      return { top: box.top, height: box.height, left: box.left, right: box.right, fontSize: getComputedStyle(element).fontSize };
+    }));
+    expect(boxes).toHaveLength(4);
+    expect(new Set(boxes.map((box) => box.top)).size).toBe(1);
+    for (const box of boxes) {
+      expect(box.height).toBeGreaterThanOrEqual(44);
+      expect(box.left).toBeGreaterThanOrEqual(0);
+      expect(box.right).toBeLessThanOrEqual(width);
+      expect(box.fontSize).toBe("13px");
+    }
+  });
 }
 
 for (const route of routes) {
@@ -154,6 +175,22 @@ test("newsletter supports keyboard submission and announces success/errors witho
     await page.keyboard.press("Enter");
     await expect(page.getByRole("status")).toContainText(status === 201 ? "Thank you" : "Too many");
     await expect(page.getByRole("status")).toHaveAttribute("aria-live", "polite");
+  }
+});
+
+test("archive year navigation links to each year's newest semester with a keyboard", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/archive");
+  const links = page.getByRole("navigation", { name: "Archive years" }).getByRole("link");
+  await expect(links).toHaveText(["2026", "2025", "2024", "2023", "2022", "2021"]);
+  for (const link of await links.all()) {
+    const year = await link.textContent();
+    const slug = `${year === "2026" ? "spring" : "fall"}-${year}`;
+    await expect(link).toHaveAttribute("href", `#${slug}`);
+    await link.focus();
+    await page.keyboard.press("Enter");
+    await expect(page).toHaveURL(new RegExp(`#${slug}$`));
+    await expect(page.locator(`#${slug} h2`)).toBeInViewport();
   }
 });
 

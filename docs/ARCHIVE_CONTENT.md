@@ -2,6 +2,8 @@
 
 The archive is maintained in `app/data.ts` and rendered by `app/archive/page.tsx`. Add events to the appropriate season's `talks` array, keeping seasons newest first. Regular talks use title, speaker, affiliation, date, time, and optional location/comment. Panels and roundtables can additionally use context, chair, presentations, participants, and discussant.
 
+The year navigation is generated from season slugs (`semester-YYYY`), linking to the first season listed for each year. Keep seasons newest first so those links target the newest archived semester. Archive and Posters share `app/components/YearNavigation.tsx` and its CSS module for consistent responsive styling.
+
 ## 2021 sources
 
 Read from the original program website on 2026-10-26:

@@ -1,27 +1,3 @@
-.seasonNav {
-  border-bottom: 1px solid var(--line);
-  border-top: 1px solid var(--line);
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px clamp(28px, 5vw, 64px);
-  justify-content: center;
-  margin-inline: clamp(18px, 5vw, 64px);
-  padding: 20px 0;
-}
-
-.seasonNav a {
-  color: #d8deef;
-  font-size: var(--font-md);
-  font-weight: 800;
-  justify-content: center;
-  text-transform: uppercase;
-}
-
-.seasonNav a:hover,
-.seasonNav a:focus-visible {
-  color: var(--accent-dark);
-}
-
 .posterArchive {
   padding: clamp(48px, 7vw, 90px) clamp(18px, 5vw, 64px);
 }
@@ -130,12 +106,5 @@
 
   .posterActions {
     justify-content: flex-start;
-  }
-}
-
-@media (max-width: 600px) {
-  .seasonNav {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 5rem), 1fr));
   }
 }

@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { YearNavigation } from "../components/YearNavigation";
 
 import styles from "./posters.module.css";
 
@@ -142,13 +143,10 @@ export default function PostersPage() {
         <h1>Posters</h1>
       </section>
 
-      <nav className={styles.seasonNav} aria-label="Poster years">
-        {posterYears.map((posterYear) => (
-          <a href={"#year-" + posterYear.year} key={posterYear.year}>
-            {posterYear.year}
-          </a>
-        ))}
-      </nav>
+      <YearNavigation
+        label="Poster years"
+        years={posterYears.map(({ year }) => ({ year, href: `#year-${year}` }))}
+      />
 
       <section className={styles.posterArchive}>
         {posterYears.map((posterYear) => (

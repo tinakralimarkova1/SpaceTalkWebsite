@@ -1,4 +1,5 @@
 import { archiveSeasons } from "../data";
+import { YearNavigation } from "../components/YearNavigation";
 
 export const metadata = {
   title: "Archive | NYU Space Talks",
@@ -20,12 +21,21 @@ const seasonNumberBySlug: Record<string, string> = {
 };
 
 export default function ArchivePage() {
+  const firstSeasonByYear = new Map<string, string>();
+  for (const season of archiveSeasons) {
+    const year = season.slug.split("-")[1];
+    if (!firstSeasonByYear.has(year)) firstSeasonByYear.set(year, season.slug);
+  }
+  const years = [...firstSeasonByYear].map(([year, slug]) => ({ year, href: `#${slug}` }));
+
   return (
     <main id="main-content" tabIndex={-1}>
       <section className="subpage-hero">
         <p className="eyebrow">NYU Space Talks</p>
         <h1>Archive</h1>
       </section>
+
+      <YearNavigation label="Archive years" years={years} />
 
       <section className="section archive-index">
         {archiveSeasons.map((season) => (
