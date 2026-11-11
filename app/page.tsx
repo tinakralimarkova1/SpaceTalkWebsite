@@ -1,14 +1,45 @@
 import Image from "next/image";
+import FoldText from "@/components/FoldText";
 import { NewsletterForm } from "./components/NewsletterForm";
 import { talks } from "./data";
+import { createPageMetadata, SITE_DESCRIPTION, SITE_NAME } from "./site-metadata";
+
+export const metadata = createPageMetadata({
+  title: SITE_NAME,
+  description: SITE_DESCRIPTION,
+  path: "/",
+  absoluteTitle: true,
+});
 
 export default function Home() {
   return (
-    <main id="main-content" tabIndex={-1}>
+    <main className="home-page" id="main-content" tabIndex={-1}>
       <section id="about" className="hero">
         <div className="hero-copy">
           <p className="eyebrow hero-eyebrow">History, Politics, Astroculture</p>
-          <h1>NYU Space Talks</h1>
+          <h1>
+            <FoldText
+              text="NYU Space Talks"
+              foldStyle="paper"
+              splitBy="char"
+              hinge="top"
+              trigger="scroll"
+              foldAngle={92}
+              duration={0.65}
+              stagger={0.045}
+              staggerFrom="start"
+              ease="power3.out"
+              loopDelay={1.4}
+              hoverRefold={true}
+              refoldRadius={140}
+              refoldAngle={45}
+              perspective={700}
+              creaseShading={0.55}
+              fontSize="clamp(2.5rem, 27cqi, 8.8rem)"
+              fontWeight={400}
+              className="hero-title-fold"
+            />
+          </h1>
           <div className="hero-actions">
             <a className="button primary" href="#schedule">
               Fall 2026
@@ -65,7 +96,7 @@ export default function Home() {
                 </strong>
               </div>
               <div className="talk-heading">
-                <h3>{talk.title}</h3>
+                <h3>{talk.number}. {talk.title}</h3>
                 <p className="speaker">
                   {talk.speaker} <span>({talk.affiliation})</span>
                 </p>

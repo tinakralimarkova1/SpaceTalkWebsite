@@ -3,6 +3,7 @@ type ArchiveParticipant = { name: string; affiliation?: string };
 type ArchiveTalk = {
   title: string;
   speaker?: string;
+  speakers?: ArchiveParticipant[];
   affiliation?: string;
   comment?: string;
   date: string;
@@ -25,7 +26,7 @@ export const archiveSeasons: { season: string; slug: string; talks: ArchiveTalk[
         speaker: "Valerie A. Olson",
         affiliation: "University of California, Irvine",
         date: "Tuesday, 17 February 2026",
-        time: "10-11:30 EST",
+        time: "10–11:30 EST",
         location: "Location: Online",
       },
       {
@@ -33,7 +34,7 @@ export const archiveSeasons: { season: string; slug: string; talks: ArchiveTalk[
         speaker: "Piero Messina",
         affiliation: "Università degli Studi di Padova",
         date: "Tuesday, 10 March 2026",
-        time: "10-11:30 EDT",
+        time: "10–11:30 EDT",
         location: "Location: Online",
       },
       {
@@ -41,7 +42,7 @@ export const archiveSeasons: { season: string; slug: string; talks: ArchiveTalk[
         speaker: "Lilian Kroth",
         affiliation: "Université de Fribourg",
         date: "Tuesday, 14 April 2026",
-        time: "10-11:30 EDT",
+        time: "10–11:30 EDT",
         location: "Location: Online",
       },
       {
@@ -50,7 +51,7 @@ export const archiveSeasons: { season: string; slug: string; talks: ArchiveTalk[
         affiliation: "Aarhus Universitet",
         comment: "Comment by Joes Segal (The Wende Museum)",
         date: "Tuesday, 12 May 2026",
-        time: "10-11:30 EDT",
+        time: "10–11:30 EDT",
         location: "Location: Online",
       },
     ],
@@ -61,13 +62,16 @@ export const archiveSeasons: { season: string; slug: string; talks: ArchiveTalk[
     talks: [
       {
         title: "History, Communication and the Global Imagination: A Roundtable in Honor of Martin J. Collins",
-        speaker:
-          "John Krige, Teasel Muir-Harmony, James Schwoch, James Merle Thomas, Adelheid Voskuhl",
-        affiliation:
-          "Georgia Institute of Technology, Smithsonian National Air and Space Museum, Northwestern University, Helen Frankenthaler Foundation, University of Pennsylvania",
+        speakers: [
+          { name: "John Krige", affiliation: "Georgia Institute of Technology" },
+          { name: "Teasel Muir-Harmony", affiliation: "Smithsonian National Air and Space Museum" },
+          { name: "James Schwoch", affiliation: "Northwestern University" },
+          { name: "James Merle Thomas", affiliation: "Helen Frankenthaler Foundation" },
+          { name: "Adelheid Voskuhl", affiliation: "University of Pennsylvania" },
+        ],
         comment: "Chair: Alexander C.T. Geppert (New York University/NYU Shanghai)",
         date: "Tuesday, 16 September 2025",
-        time: "10-11:30 EDT",
+        time: "10–11:30 EDT",
         location: "Location: Online",
       },
       {
@@ -75,7 +79,7 @@ export const archiveSeasons: { season: string; slug: string; talks: ArchiveTalk[
         speaker: "Paloma Puente Lozano",
         affiliation: "Universidad Carlos III de Madrid",
         date: "Tuesday, 21 October 2025",
-        time: "10-11:30 EDT",
+        time: "10–11:30 EDT",
         location: "Location: Online",
       },
       {
@@ -83,7 +87,7 @@ export const archiveSeasons: { season: string; slug: string; talks: ArchiveTalk[
         speaker: "Olga Dubrovina",
         affiliation: "Università degli Studi di Milano",
         date: "Tuesday, 18 November 2025",
-        time: "10-11:30 EST",
+        time: "10–11:30 EST",
         location: "Location: Online",
       },
       {
@@ -91,7 +95,7 @@ export const archiveSeasons: { season: string; slug: string; talks: ArchiveTalk[
         speaker: "Jens Temmen",
         affiliation: "Katholische Universität Eichstätt-Ingolstadt",
         date: "Tuesday, 2 December 2025",
-        time: "10-11:30 EST",
+        time: "10–11:30 EST",
         location: "Location: Online",
       },
     ],
@@ -105,7 +109,7 @@ export const archiveSeasons: { season: string; slug: string; talks: ArchiveTalk[
         speaker: "Tonio Savina",
         affiliation: "Sapienza Università di Roma",
         date: "Tuesday, 18 February 2025",
-        time: "10-11:30 EST",
+        time: "10–11:30 EST",
         location: "Location: Online",
       },
       {
@@ -113,7 +117,7 @@ export const archiveSeasons: { season: string; slug: string; talks: ArchiveTalk[
         speaker: "Robert Poole",
         affiliation: "University of Central Lancashire",
         date: "Tuesday, 18 March 2025",
-        time: "10-11:30 EDT",
+        time: "10–11:30 EDT",
         location: "Location: Online",
       },
       {
@@ -121,18 +125,19 @@ export const archiveSeasons: { season: string; slug: string; talks: ArchiveTalk[
         speaker: "Laurence Guignard",
         affiliation: "Université Paris-Est Créteil",
         date: "Tuesday, 15 April 2025",
-        time: "10-11:30 EDT",
+        time: "10–11:30 EDT",
         location: "Location: Online",
       },
       {
         title: "Space on Display: A Conversation among Curators",
-        speaker:
-          "Aron Schöpf, Doug Millard, Margaret Weitekamp",
-        affiliation:
-          "Deutsches Museum, Science Museum, Smithsonian National Air and Space Museum",
+        speakers: [
+          { name: "Aron Schöpf", affiliation: "Deutsches Museum" },
+          { name: "Doug Millard", affiliation: "Science Museum" },
+          { name: "Margaret Weitekamp", affiliation: "Smithsonian National Air and Space Museum" },
+        ],
         comment: "Moderation: Alexander C.T. Geppert (NYU/NYU Shanghai)",
         date: "Tuesday, 20 May 2025",
-        time: "10-11:30 EDT",
+        time: "10–11:30 EDT",
         location: "Location: Online",
       },
     ],
@@ -146,18 +151,21 @@ export const archiveSeasons: { season: string; slug: string; talks: ArchiveTalk[
         speaker: "De Witt Douglas Kilgore",
         affiliation: "Indiana University",
         date: "Wednesday, 11 September 2024",
-        time: "10-11:30 EDT",
+        time: "10–11:30 EDT",
         location: "Location: Online",
       },
       {
         title: "Whither a Planetary Turn? A Roundtable",
-        speaker:
-          "Thore Bjørnvig, Alexander C.T. Geppert, Haitian Ma, Tilmann Siebeneichner, Brad Tabas",
-        affiliation:
-          "Copenhagen, NYU/NYU Shanghai, Universiteit van Amsterdam, ZZF Potsdam, ENSTA Bretagne",
+        speakers: [
+          { name: "Thore Bjørnvig", affiliation: "Copenhagen" },
+          { name: "Alexander C.T. Geppert", affiliation: "NYU/NYU Shanghai" },
+          { name: "Haitian Ma", affiliation: "Universiteit van Amsterdam" },
+          { name: "Tilmann Siebeneichner", affiliation: "ZZF Potsdam" },
+          { name: "Brad Tabas", affiliation: "ENSTA Bretagne" },
+        ],
         comment: "Moderation: Fabienne Will (Deutsches Museum)",
         date: "Wednesday, 9 October 2024",
-        time: "12-13:30 EDT",
+        time: "12–13:30 EDT",
         location: "Location: Online",
       },
       {
@@ -165,7 +173,7 @@ export const archiveSeasons: { season: string; slug: string; talks: ArchiveTalk[
         speaker: "Mia Bennett",
         affiliation: "University of Washington",
         date: "Wednesday, 6 November 2024",
-        time: "10-11:30 EST",
+        time: "10–11:30 EST",
         location: "Location: Online",
       },
       {
@@ -173,7 +181,7 @@ export const archiveSeasons: { season: string; slug: string; talks: ArchiveTalk[
         speaker: "Brian Odom",
         affiliation: "NASA",
         date: "Wednesday, 4 December 2024",
-        time: "10-11:30 EST",
+        time: "10–11:30 EST",
         location: "Location: Online",
       },
     ],
@@ -187,7 +195,7 @@ export const archiveSeasons: { season: string; slug: string; talks: ArchiveTalk[
         speaker: "Jonathan B. Wiener",
         affiliation: "Duke University",
         date: "Wednesday, 21 February 2024",
-        time: "10-11:30 EST",
+        time: "10–11:30 EST",
         location: "Location: Online",
       },
       {
@@ -195,7 +203,7 @@ export const archiveSeasons: { season: string; slug: string; talks: ArchiveTalk[
         speaker: "Kajsa Törmä",
         affiliation: "Umeå universitet",
         date: "Wednesday, 13 March 2024",
-        time: "10-11:30 EDT",
+        time: "10–11:30 EDT",
         location: "Location: Online",
       },
       {
@@ -203,7 +211,7 @@ export const archiveSeasons: { season: string; slug: string; talks: ArchiveTalk[
         speaker: "Gabriela Radulescu",
         affiliation: "Technische Universität Berlin",
         date: "Wednesday, 10 April 2024",
-        time: "10-11:30 EDT",
+        time: "10–11:30 EDT",
         location: "Location: Online",
       },
       {
@@ -212,7 +220,7 @@ export const archiveSeasons: { season: string; slug: string; talks: ArchiveTalk[
         affiliation: "Sciences Po/Université Paris II Panthéon-Assas",
         comment: "Comment by Michael Hagemeister (Ruhr-Universität Bochum)",
         date: "Wednesday, 8 May 2024",
-        time: "10-11:30 EDT",
+        time: "10–11:30 EDT",
         location: "Location: Online",
       },
     ],
@@ -226,7 +234,7 @@ export const archiveSeasons: { season: string; slug: string; talks: ArchiveTalk[
         speaker: "Anne W. Johnson",
         affiliation: "Universidad Iberoamericana",
         date: "Wednesday, 13 September 2023",
-        time: "10-11:30 EDT",
+        time: "10–11:30 EDT",
         location: "Location: Online",
       },
       {
@@ -234,7 +242,7 @@ export const archiveSeasons: { season: string; slug: string; talks: ArchiveTalk[
         speaker: "Michèle Matetschk",
         affiliation: "Humboldt-Universität zu Berlin",
         date: "Thursday, 5 October 2023",
-        time: "10-11:30 EDT",
+        time: "10–11:30 EDT",
         location: "Location: Online",
       },
       {
@@ -242,7 +250,7 @@ export const archiveSeasons: { season: string; slug: string; talks: ArchiveTalk[
         speaker: "Brian Harvey",
         affiliation: "FBIS",
         date: "Wednesday, 8 November 2023",
-        time: "10-11:30 EST",
+        time: "10–11:30 EST",
         location: "Location: Online",
       },
       {
@@ -250,7 +258,7 @@ export const archiveSeasons: { season: string; slug: string; talks: ArchiveTalk[
         speaker: "Luca Thanei",
         affiliation: "ETH Zürich",
         date: "Wednesday, 29 November 2023",
-        time: "10-11:30 EST",
+        time: "10–11:30 EST",
         location: "Location: Online",
       },
     ],
@@ -264,7 +272,7 @@ export const archiveSeasons: { season: string; slug: string; talks: ArchiveTalk[
         speaker: "Gherardo Bonini",
         affiliation: "Historical Archives of the European Union, Florence",
         date: "Wednesday, 22 February 2023",
-        time: "10-11:30 EST",
+        time: "10–11:30 EST",
         location: "Location: Online",
       },
       {
@@ -272,7 +280,7 @@ export const archiveSeasons: { season: string; slug: string; talks: ArchiveTalk[
         speaker: "Catherine Radtka",
         affiliation: "Conservatoire national des arts et métiers, Paris",
         date: "Wednesday, 22 March 2023",
-        time: "10-11:30 EDT",
+        time: "10–11:30 EDT",
         location: "Location: Online",
       },
       {
@@ -280,16 +288,18 @@ export const archiveSeasons: { season: string; slug: string; talks: ArchiveTalk[
         speaker: "Denis Sivkov",
         affiliation: "Russian Academy of National Economy and Public Administration, Moscow",
         date: "Wednesday, 19 April 2023",
-        time: "10-11:30 EDT",
+        time: "10–11:30 EDT",
         location: "Location: Online",
       },
       {
         title: "Planetizing History",
-        speaker: "Alexander C.T. Geppert and Brad Tabas",
-        affiliation: "NYU/NYU Shanghai and ENSTA Bretagne",
+        speakers: [
+          { name: "Alexander C.T. Geppert", affiliation: "NYU/NYU Shanghai" },
+          { name: "Brad Tabas", affiliation: "ENSTA Bretagne" },
+        ],
         comment: "Moderation: Anne Johnson (Universidad Iberoamericana)",
         date: "Thursday, 11 May 2023",
-        time: "10-11:30 EDT",
+        time: "10–11:30 EDT",
         location: "Location: Online",
       },
     ],
@@ -303,7 +313,7 @@ export const archiveSeasons: { season: string; slug: string; talks: ArchiveTalk[
         speaker: "William P. Barry",
         affiliation: "former NASA Chief Historian",
         date: "Tuesday, 13 September 2022",
-        time: "10:00-11:30 EDT",
+        time: "10:00–11:30 EDT",
         location: "Location: Online",
       },
       {
@@ -311,7 +321,7 @@ export const archiveSeasons: { season: string; slug: string; talks: ArchiveTalk[
         speaker: "Tilmann Siebeneichner",
         affiliation: "Zentrum für Zeithistorische Forschung Potsdam",
         date: "Tuesday, 18 October 2022",
-        time: "10:00-11:30 EDT",
+        time: "10:00–11:30 EDT",
         location: "Location: Online",
       },
       {
@@ -319,7 +329,7 @@ export const archiveSeasons: { season: string; slug: string; talks: ArchiveTalk[
         speaker: "Gloria Maritza Gómez Revuelta",
         affiliation: "El Colegio de México",
         date: "Tuesday, 1 November 2022",
-        time: "10:00-11:30 EDT",
+        time: "10:00–11:30 EDT",
         location: "Location: Online",
       },
     ],
@@ -333,7 +343,7 @@ export const archiveSeasons: { season: string; slug: string; talks: ArchiveTalk[
         speaker: "Lois Rosson",
         affiliation: "University of California, Berkeley",
         date: "Thursday, 24 February 2022",
-        time: "12:00-13:30 EST",
+        time: "12:00–13:30 EST",
         location: "Location: Online",
       },
       {
@@ -341,7 +351,7 @@ export const archiveSeasons: { season: string; slug: string; talks: ArchiveTalk[
         speaker: "Rory Rowan",
         affiliation: "Trinity College Dublin",
         date: "Friday, 8 April 2022",
-        time: "12:00-13:30 EDT",
+        time: "12:00–13:30 EDT",
         location: "Location: Online",
       },
       {
@@ -349,7 +359,7 @@ export const archiveSeasons: { season: string; slug: string; talks: ArchiveTalk[
         speaker: "Darina Volf",
         affiliation: "Ludwig-Maximilians Universität München",
         date: "Thursday, 14 April 2022",
-        time: "12:00-13:30 EDT",
+        time: "12:00–13:30 EDT",
         location: "Location: Online",
       },
       {
@@ -357,7 +367,7 @@ export const archiveSeasons: { season: string; slug: string; talks: ArchiveTalk[
         speaker: "François Rulier",
         affiliation: "Université Jean Jaurès, Toulouse",
         date: "Thursday, 12 May 2022",
-        time: "12:00-13:30 EDT",
+        time: "12:00–13:30 EDT",
         location: "Location: Online",
       },
     ],
@@ -371,7 +381,7 @@ export const archiveSeasons: { season: string; slug: string; talks: ArchiveTalk[
         speaker: "Vladimir Brljak",
         affiliation: "Durham University",
         date: "Thursday, 23 September 2021",
-        time: "14:00-15:30 EDT",
+        time: "14:00–15:30 EDT",
         location: "Location: Online",
       },
       {
@@ -379,7 +389,7 @@ export const archiveSeasons: { season: string; slug: string; talks: ArchiveTalk[
         speaker: "Natalija Majsova",
         affiliation: "University of Ljubljana",
         date: "Thursday, 21 October 2021",
-        time: "14:00-15:30 EDT",
+        time: "14:00–15:30 EDT",
         location: "Location: Online",
       },
       {
@@ -387,17 +397,22 @@ export const archiveSeasons: { season: string; slug: string; talks: ArchiveTalk[
         speaker: "Brad Tabas",
         affiliation: "ENSTA Bretagne",
         date: "Thursday, 11 November 2021",
-        time: "14:00-15:30 EST",
+        time: "14:00–15:30 EST",
         location: "Location: Online",
       },
       {
         title: "Rocket Stars in the Global Space Age: Clarke, Qian, Sarabhai, Jähn, Merbold and Tamayo",
-        speaker:
-          "Alexander Geppert, Maritza Gómez, Lu Liu, Haitian Ma, Asif Siddiqi, Tilmann Siebeneichner and David Skogerboe",
-        affiliation:
-          "NYU/Caltech, Colegio de México, Georgia Institute of Technology, University of Amsterdam, Fordham University, Humboldt-Universität zu Berlin and Utrecht University",
+        speakers: [
+          { name: "Alexander Geppert", affiliation: "NYU/Caltech" },
+          { name: "Maritza Gómez", affiliation: "Colegio de México" },
+          { name: "Lu Liu", affiliation: "Georgia Institute of Technology" },
+          { name: "Haitian Ma", affiliation: "University of Amsterdam" },
+          { name: "Asif Siddiqi", affiliation: "Fordham University" },
+          { name: "Tilmann Siebeneichner", affiliation: "Humboldt-Universität zu Berlin" },
+          { name: "David Skogerboe", affiliation: "Utrecht University" },
+        ],
         date: "Friday, 3 December 2021",
-        time: "12:00-14:00 EST",
+        time: "12:00–14:00 EST",
         location: "Location: Online",
       },
     ],
@@ -410,7 +425,7 @@ export const archiveSeasons: { season: string; slug: string; talks: ArchiveTalk[
         title: "Planetary Poetics and Politics in Post-War Europe",
         context: "Europe's Past, Present, and Future: Utopias and Dystopias. 27th International Conference of Europeanists, 21-25 June 2021. Mini-symposium 'European Space Futures, Real and Imagined'.",
         date: "Thursday, 24 June 2021",
-        time: "10:00-11:30 EDT",
+        time: "10:00–11:30 EDT",
         chair: "Alexander C.T. Geppert (New York University and NYU Shanghai)",
         presentations: [
           { title: "From Dystopia on Earth to Utopia in Space, 1944-1969", name: "Robert Poole", affiliation: "University of Central Lancashire" },
@@ -425,7 +440,7 @@ export const archiveSeasons: { season: string; slug: string; talks: ArchiveTalk[
         title: "European Astroculture and Beyond: A Roundtable",
         context: "Europe's Past, Present, and Future: Utopias and Dystopias. 27th International Conference of Europeanists, 21-25 June 2021. Mini-symposium 'European Space Futures, Real and Imagined'.",
         date: "Thursday, 24 June 2021",
-        time: "12:00-13:30 EDT",
+        time: "12:00–13:30 EDT",
         chair: "Alexander C.T. Geppert (New York University and NYU Shanghai)",
         participants: [
           { name: "Martin Collins", affiliation: "Smithsonian National Air and Space Museum" },
@@ -438,7 +453,7 @@ export const archiveSeasons: { season: string; slug: string; talks: ArchiveTalk[
         title: "Imagining, Limiting, Militarizing: European Astroculture and Beyond",
         context: "Tensions of Europe Digital Workshop Festival 2021, 28 June - 2 July 2021",
         date: "Monday, 28 June 2021",
-        time: "17:00-19:00 CET",
+        time: "17:00–19:00 CET",
         chair: "Alexander C.T. Geppert (New York University and NYU Shanghai)",
         participants: [
           { name: "Martin Collins", affiliation: "Smithsonian National Air and Space Museum" },
@@ -460,7 +475,7 @@ export const archiveSeasons: { season: string; slug: string; talks: ArchiveTalk[
         speaker: "Daniel Deudney",
         affiliation: "Johns Hopkins University",
         date: "Wednesday, 10 February 2021",
-        time: "14:00-15:30 EST",
+        time: "14:00–15:30 EST",
         location: "Location: Online",
       },
       {
@@ -468,16 +483,19 @@ export const archiveSeasons: { season: string; slug: string; talks: ArchiveTalk[
         speaker: "Tamara Álvarez",
         affiliation: "The New School",
         date: "Wednesday, 24 March 2021",
-        time: "14:00-15:30 EST",
+        time: "14:00–15:30 EST",
         location: "Location: Online",
       },
       {
         title: "Militant Astroculture and the Cold War: A Roundtable",
-        speaker: "Alexander Geppert, Daniel Brandau and Tilmann Siebeneichner",
-        affiliation: "NYU, FU Berlin and HU Berlin",
+        speakers: [
+          { name: "Alexander Geppert", affiliation: "NYU" },
+          { name: "Daniel Brandau", affiliation: "FU Berlin" },
+          { name: "Tilmann Siebeneichner", affiliation: "HU Berlin" },
+        ],
         comment: "In conversation with Martin Collins (Smithsonian National Air and Space Museum), Amanda Rees (York) and Guillaume de Syon (Albright College).",
         date: "Wednesday, 21 April 2021",
-        time: "14:00-15:30 EST",
+        time: "14:00–15:30 EST",
         location: "Location: Online",
       },
     ],
@@ -486,12 +504,13 @@ export const archiveSeasons: { season: string; slug: string; talks: ArchiveTalk[
 
 export const talks = [
   {
+    number: 44,
     title:
       "A Mountain in Space: Taixu and the Buddhist Imagination of the Cosmos",
     speaker: "Ben Van Overmeire",
     affiliation: "Duke Kunshan University",
     date: "Tuesday, 15 September 2026",
-    time: "10-11:30 EDT/15-16:30 BST/16-17:30 CEST/22:00-23:30 CST",
+    time: "10–11:30 EDT/15–16:30 BST/16–17:30 CEST/22:00–23:30 CST",
     registrationUrl:
       "https://nyu.zoom.us/meeting/register/4_SxPo5hQ9e9UAOptjBw-g",
     image: "/talk-images/van-overmeire-taixu-london-1929.png",
@@ -500,13 +519,14 @@ export const talks = [
       "When the famous Chinese Buddhist monk and reformer Taixu (1890-1947) attempted to make sense of how Western astronomy could be reconciled to Buddhist cosmology, he did something strange and original: he claimed that the traditional flat-earth geocentric Buddhist geography, which posited that at the center of the world there is a gigantic mountain around which sentient beings lived, was in fact a map of the solar system. This talk will first explain how and why Taixu justified this argument, drawing on an important but hitherto untranslated essay. Then it will place Taixu's work within a broader framework, showing that Buddhism has been a persistent influence on the human imagination of outer space, from 'Star Wars' to 'The Three Body Problem.'",
   },
   {
+    number: 45,
     title:
       "SETI@home 2.0: UFOs, Politics and the Science of Extraterrestrial Intelligence",
     speaker: "Christian Peters",
     affiliation: "Universität Bremen",
     comment: "Comment by Thore Bjørnvig (Copenhagen)",
     date: "Tuesday, 13 October 2026",
-    time: "10-11:30 EDT/15-16:30 BST/16-17:30 CEST/22:00-23:30 CST",
+    time: "10–11:30 EDT/15–16:30 BST/16–17:30 CEST/22:00–23:30 CST",
     registrationUrl:
       "https://nyu.zoom.us/meeting/register/W-t9YWNjRhOrsbJt6dB7EQ",
     image: "/talk-images/peters-uap.jpg",
@@ -515,13 +535,14 @@ export const talks = [
       "Since the launch of Project Ozma in 1960, SETI researchers have searched for extraterrestrial intelligence, while UFO researchers have argued that evidence of non-human intelligence may already exist on Earth. Despite this apparent overlap, the two fields remained largely separate for decades. That divide is now under pressure. Since the 2022 Congressional hearings, whistleblower claims, government reports, and growing academic engagement have pushed unidentified anomalous phenomena (UAP) from the margins into political and scientific debate. While their nature remains contested, this talk examines what their changing status reveals about the social organization of knowledge. Why did UAP become a scientific taboo, and why are some governments less willing to sustain it? The answer may illuminate how societies respond to evidence of other capable minds, whether extraterrestrial or artificial.",
   },
   {
+    number: 46,
     title:
       "The Kuafu Paradox: Why China's Flagship Solar Mission Failed to Launch",
     speaker: "Zhihui Zhang",
     affiliation: "Chinese Academy of Sciences",
     comment: "Comment by Zuoyue Wang (California State Polytechnic University)",
     date: "Tuesday, 3 November 2026",
-    time: "10-11:30 EST/15-16:30 GMT/16-17:30 CET/23:00-00:30 CST",
+    time: "10–11:30 EST/15–16:30 GMT/16–17:30 CET/23:00–00:30 CST",
     registrationUrl:
       "https://nyu.zoom.us/meeting/register/kxh78i4OTk-BZyZlbngJIw",
     image: "/talk-images/zhang-kuafu-project.png",
@@ -530,12 +551,13 @@ export const talks = [
       "This paper examines the stalled Kuafu Program, a Chinese solar-terrestrial observation mission proposed in 2003 by leading space scientists, including Tu Chuanyi. Designed as a three-satellite constellation aligned with NASA's International Living With a Star (ILWS) framework and extending SOHO's observational legacy, Kuafu received official approval and attracted international attention. Yet the program was indefinitely suspended in 2014. The paper argues that its stagnation reflected the intersection of geopolitical tensions, institutional priorities, and divisions within Chinese and international scientific communities. Although China launched a smaller solar-observation satellite, Kuafu-1, in 2022, officials have not confirmed continuity with the original program. Kuafu thus reveals the fragile politics behind international collaboration in emerging space-science programs.",
   },
   {
+    number: 47,
     title:
       "When Is a Planet Just Right? Su-Shu Huang and the Concept of the Habitable Zone",
     speaker: "Michael Robinson",
     affiliation: "University of Hartford",
     date: "Tuesday, 1 December 2026",
-    time: "10-11:30 EST/15-16:30 GMT/16-17:30 CET/23:00-00:30 CST",
+    time: "10–11:30 EST/15–16:30 GMT/16–17:30 CET/23:00–00:30 CST",
     registrationUrl:
       "https://nyu.zoom.us/meeting/register/rOBtgTQjQJizfH_MB4ntyw",
     image: "/talk-images/robinson-habitable-zone.jpg",

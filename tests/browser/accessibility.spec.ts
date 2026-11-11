@@ -1,7 +1,41 @@
 import { test, expect, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 
-const routes = ["/", "/archive", "/posters"];
+const routes = ["/", "/archive", "/posters", "/thinking-outer-space"];
+
+test("search and social metadata use the canonical custom domain", async ({ page, request }) => {
+  const expected = [
+    { path: "/", canonical: "https://www.space-talks.com", title: "NYU Space Talks" },
+    { path: "/archive", canonical: "https://www.space-talks.com/archive", title: "Archive" },
+    { path: "/posters", canonical: "https://www.space-talks.com/posters", title: "Posters" },
+    {
+      path: "/thinking-outer-space",
+      canonical: "https://www.space-talks.com/thinking-outer-space",
+      title: "Thinking Outer Space",
+    },
+  ];
+
+  for (const pageMetadata of expected) {
+    await page.goto(pageMetadata.path);
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", pageMetadata.canonical);
+    await expect(page.locator('meta[property="og:title"]')).toHaveAttribute("content", pageMetadata.title);
+    await expect(page.locator('meta[property="og:url"]')).toHaveAttribute("content", pageMetadata.canonical);
+    await expect(page.locator('meta[property="og:image"]')).toHaveAttribute(
+      "content",
+      "https://www.space-talks.com/space-black.png",
+    );
+    await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute("content", "summary");
+  }
+
+  const robots = await request.get("/robots.txt");
+  expect(robots.status()).toBe(200);
+  expect(await robots.text()).toContain("Sitemap: https://www.space-talks.com/sitemap.xml");
+
+  const sitemap = await request.get("/sitemap.xml");
+  expect(sitemap.status()).toBe(200);
+  const sitemapText = await sitemap.text();
+  for (const pageMetadata of expected) expect(sitemapText).toContain(`<loc>${pageMetadata.canonical.replace(/\/$/, "")}</loc>`);
+});
 
 test("2021 archive includes the talks and full summer session programs", async ({ page }) => {
   await page.goto("/archive");
@@ -16,6 +50,83 @@ test("2021 archive includes the talks and full summer session programs", async (
   await expect(summer.getByText(/^Discussant:/)).toContainText("Caitríona Ní Dhúill");
   await expect(spring.locator(".archive-season-number")).toHaveText("Season I");
   await expect(summer.locator(".archive-season-number")).toHaveCount(0);
+});
+
+test("archive dropdowns reveal the abstracts from the original season pages", async ({ page }) => {
+  await page.goto("/archive");
+  await expect(page.locator(".archive-talk-abstract")).toHaveCount(42);
+  await expect(page.locator(".archive-talk-image")).toHaveCount(21);
+  await expect(page.locator(".archive-talk-image-source")).toHaveCount(21);
+  await expect(page.locator(".archive-talk-image-fallback")).toHaveCount(0);
+  await expect(page.locator("#spring-2024 .archive-talk-image-source")).toHaveCount(4);
+  await expect(page.locator("#spring-2024 .archive-talk-image-fallback")).toHaveCount(0);
+  await expect(page.locator("#fall-2024 .archive-talk").first().locator(".archive-talk-image-source")).toHaveCount(1);
+
+  const firstTalk = page.locator(".archive-talk").first();
+  await expect(firstTalk).not.toHaveAttribute("open", "");
+  await firstTalk.locator("summary").focus();
+  await page.keyboard.press("Enter");
+  await expect(firstTalk).toHaveAttribute("open", "");
+  await expect(firstTalk.getByRole("heading", { name: "Abstract" })).toBeVisible();
+  await expect(firstTalk.locator(".archive-talk-image img")).toBeVisible();
+  await expect.poll(() => firstTalk.locator("img").evaluate((image) => (image as HTMLImageElement).naturalWidth))
+    .toBeGreaterThan(0);
+  await expect(firstTalk.locator(".archive-talk-abstract p")).toContainText(
+    "Several of the world’s wealthiest people",
+  );
+});
+
+test("archive roundtables pair every speaker with their institution", async ({ page }) => {
+  await page.goto("/archive");
+
+  const roundtable = page.locator("#fall-2024 .archive-talk").filter({
+    hasText: "Whither a Planetary Turn?",
+  });
+  await roundtable.locator("summary").click();
+
+  await expect(roundtable.locator(".archive-speaker-pairs")).toHaveText(
+    "Thore Bjørnvig (Copenhagen), Alexander C.T. Geppert (NYU/NYU Shanghai), Haitian Ma (Universiteit van Amsterdam), Tilmann Siebeneichner (ZZF Potsdam), Brad Tabas (ENSTA Bretagne)",
+  );
+  await expect(roundtable.locator(".archive-speaker-pairs")).toHaveCSS("color", "rgb(170, 178, 196)");
+});
+
+test("talk numbers follow the historical sequence and skip Summer 2021", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.locator(".talk-card h3")).toHaveText([
+    /44\. A Mountain in Space/,
+    /45\. SETI@home 2\.0/,
+    /46\. The Kuafu Paradox/,
+    /47\. When Is a Planet Just Right\?/,
+  ]);
+
+  await page.goto("/archive");
+  await expect(page.locator("#spring-2026 .archive-talk-title")).toHaveText([
+    /40\. How to Think Like a Space Billionaire/,
+    /41\. Italy's Participation in Spacelab/,
+    /42\. Eyes in the Sky/,
+    /43\. Prelude to the Space Age/,
+  ]);
+  await expect(page.locator("#spring-2021 .archive-talk-title")).toHaveText([
+    /2\. Dark Skies/,
+    /3\. The Eighth Continent/,
+    /4\. Militant Astroculture/,
+  ]);
+  const summerTitles = await page.locator("#summer-2021 .archive-talk-title").allTextContents();
+  expect(summerTitles.every((title) => !/^\d+\./.test(title))).toBe(true);
+});
+
+test("archive dropdown animation respects reduced motion", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/archive");
+  const firstTalk = page.locator(".archive-talk").first();
+  const summary = firstTalk.locator("summary");
+
+  await summary.click();
+  await expect(firstTalk).toHaveAttribute("open", "");
+  await expect(firstTalk).not.toHaveCSS("overflow", "hidden");
+
+  await summary.click();
+  await expect(firstTalk).not.toHaveAttribute("open", "");
 });
 
 async function nextControl(page: Page, browserName: string) {
@@ -37,7 +148,7 @@ for (const width of [320, 390, 768, 820, 1024, 1440]) {
         [...document.querySelectorAll<HTMLElement>("main *, .site-header *, .skip-link")]
           .filter((element) => element.getBoundingClientRect().width > 0 &&
             !element.closest(".honeypot-field, h1") &&
-            !(innerWidth <= 600 && element.matches(".site-header nav a")) &&
+            !(innerWidth <= 600 && element.closest(".site-header nav")) &&
             [...element.childNodes].some((node) => node.nodeType === Node.TEXT_NODE && node.textContent?.trim()))
           .map((element) => getComputedStyle(element).fontSize),
       )]);
@@ -86,13 +197,14 @@ for (const width of [320, 390, 430, 600]) {
       const box = element.getBoundingClientRect();
       return { top: box.top, height: box.height, left: box.left, right: box.right, fontSize: getComputedStyle(element).fontSize };
     }));
-    expect(boxes).toHaveLength(4);
+    expect(boxes).toHaveLength(6);
     expect(new Set(boxes.map((box) => box.top)).size).toBe(1);
     for (const box of boxes) {
       expect(box.height).toBeGreaterThanOrEqual(44);
       expect(box.left).toBeGreaterThanOrEqual(0);
       expect(box.right).toBeLessThanOrEqual(width);
-      expect(box.fontSize).toBe("13px");
+      expect(Number.parseFloat(box.fontSize)).toBeGreaterThanOrEqual(10);
+      expect(Number.parseFloat(box.fontSize)).toBeLessThanOrEqual(13);
     }
   });
 }
@@ -126,13 +238,55 @@ for (const route of routes) {
 
 test("keyboard navigation can open Archive and Posters", async ({ page, browserName }) => {
   await page.goto("/");
-  for (let i = 0; i < 4; i++) await nextControl(page, browserName);
+  for (let i = 0; i < 5; i++) await nextControl(page, browserName);
   await expect(page.getByRole("navigation", { name: "Primary navigation" }).getByRole("link", { name: "Archive" })).toBeFocused();
   await page.keyboard.press("Enter");
   await expect(page).toHaveURL(/\/archive$/);
   await page.getByRole("navigation", { name: "Primary navigation" }).getByRole("link", { name: "Posters" }).focus();
   await page.keyboard.press("Enter");
   await expect(page).toHaveURL(/\/posters$/);
+});
+
+test("navigation Home link returns to the NYU Space Talks hero", async ({ page }) => {
+  await page.goto("/archive");
+  const home = page.getByRole("navigation", { name: "Primary navigation" }).getByRole("link", { name: "Home" });
+  await expect(home).toHaveAttribute("href", "/#about");
+  await home.click();
+  await expect(page).toHaveURL(/\/#about$/);
+  await expect(page.getByRole("heading", { level: 1, name: "NYU Space Talks" })).toBeInViewport();
+});
+
+test("all displayed current-season time ranges use en dashes", async ({ page }) => {
+  await page.goto("/");
+  const times = await page.locator(".talk-date strong").allTextContents();
+  expect(times.length).toBeGreaterThan(0);
+  expect(times.every((time) => !/\d-\d/.test(time) && /\d–\d/.test(time))).toBe(true);
+});
+
+test("home load animation is brief and disabled by reduced motion", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+  await page.goto("/");
+
+  const animation = await page.locator(".hero").evaluate((hero) => ({
+    curtain: getComputedStyle(hero, "::before").animationDuration,
+    curtainName: getComputedStyle(hero, "::before").animationName,
+    stars: getComputedStyle(hero, "::after").animationName,
+    content: getComputedStyle(hero.querySelector(".hero-copy")!).animationDuration,
+  }));
+  expect(animation).toEqual({
+    curtain: "1.15s",
+    curtainName: "hero-space-reveal",
+    stars: "none",
+    content: "0.9s",
+  });
+
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.reload();
+  const reduced = await page.locator(".hero").evaluate((hero) => ({
+    curtain: getComputedStyle(hero, "::before").display,
+    content: getComputedStyle(hero.querySelector(".hero-copy")!).animationName,
+  }));
+  expect(reduced).toEqual({ curtain: "none", content: "none" });
 });
 
 test("reduced motion disables parallax and smooth scrolling, including preference changes", async ({ page }) => {

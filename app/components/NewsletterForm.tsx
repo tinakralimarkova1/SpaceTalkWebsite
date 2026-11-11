@@ -59,7 +59,7 @@ export function NewsletterForm() {
 
       form.reset();
       setSubmission({
-        message: message || "Thank you. You have joined the mailing list.",
+        message: message || "Thank you. You have joined our newsletter.",
         type: "success",
       });
     } catch (error) {
@@ -79,7 +79,7 @@ export function NewsletterForm() {
     <form className="signup-form" onSubmit={handleSubmit}>
       <p>
         If you want to receive updates about future NYU Space Talks, please join
-        our mailing list.
+        our newsletter.
       </p>
       <label>
         First Name

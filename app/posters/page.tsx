@@ -1,12 +1,14 @@
 import Image from "next/image";
 import { YearNavigation } from "../components/YearNavigation";
+import { createPageMetadata } from "../site-metadata";
 
 import styles from "./posters.module.css";
 
-export const metadata = {
-  title: "Posters | NYU Space Talks",
-  description: "Past-season posters from NYU Space Talks.",
-};
+export const metadata = createPageMetadata({
+  title: "Posters",
+  description: "View and download past-season posters from NYU Space Talks.",
+  path: "/posters",
+});
 
 type Poster = {
   alt: string;

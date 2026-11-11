@@ -137,6 +137,10 @@ nav a {
   min-width: 44px;
 }
 
+.nav-label-mobile {
+  display: none;
+}
+
 .hero {
   align-items: center;
   background: transparent;
@@ -146,6 +150,60 @@ nav a {
   min-height: 78vh;
   overflow: hidden;
   padding: clamp(64px, 9vw, 118px) clamp(18px, 5vw, 64px);
+}
+
+.home-page .hero {
+  isolation: isolate;
+  position: relative;
+}
+
+.home-page .hero::before {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+}
+
+.home-page .hero::before {
+  animation: hero-space-reveal 1150ms ease-out forwards;
+  background: var(--void);
+  inset: 0;
+  z-index: 2;
+}
+
+.home-page .hero > * {
+  position: relative;
+  z-index: 3;
+}
+
+.home-page .hero-copy {
+  animation: hero-content-arrive 900ms 200ms ease-out both;
+}
+
+.home-page .hero-about {
+  animation: hero-content-arrive 900ms 350ms ease-out both;
+}
+
+@keyframes hero-space-reveal {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+@keyframes hero-content-arrive {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .hero-copy {
@@ -162,6 +220,13 @@ nav a {
 
 .hero-copy h1 {
   font-size: clamp(2.5rem, 27cqi, 8.8rem);
+  width: 100%;
+}
+
+.hero-copy .fold-text.hero-title-fold {
+  display: block;
+  font-family: inherit;
+  letter-spacing: 0;
   width: 100%;
 }
 
@@ -509,21 +574,131 @@ h3 {
 }
 
 .archive-talk {
+  background: rgba(8, 13, 21, 0.76);
+  border: 1px solid var(--line);
+  min-width: 0;
+}
+
+.archive-talk-summary {
+  align-items: center;
+  cursor: pointer;
+  display: grid;
+  gap: 24px;
+  grid-template-columns: minmax(180px, 0.34fr) minmax(0, 1fr) 32px;
+  list-style: none;
+  min-height: 92px;
+  overflow-wrap: anywhere;
+  padding: 18px 20px;
+}
+
+.archive-talk-summary::-webkit-details-marker {
+  display: none;
+}
+
+.archive-talk-summary::after {
+  color: var(--accent);
+  content: "+";
+  font-size: var(--font-lg);
+  font-weight: 200;
+  grid-column: 3;
+  grid-row: 1;
+  line-height: 1;
+  text-align: center;
+}
+
+.archive-talk[open] .archive-talk-summary::after {
+  content: "−";
+}
+
+.archive-talk-heading {
+  display: grid;
+  gap: 8px;
+}
+
+.archive-talk-title {
+  color: var(--foreground);
+  font-size: var(--font-lg);
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.archive-talk-speaker {
+  color: var(--muted);
+  font-size: var(--font-sm);
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.archive-talk-details {
+  border-top: 1px solid var(--line);
+  min-width: 0;
+  overflow-wrap: anywhere;
+  padding: 22px 20px 24px calc(34% + 28px);
+}
+
+.archive-talk-details-with-image {
   display: grid;
   gap: 24px;
   grid-template-columns: minmax(180px, 0.34fr) minmax(0, 1fr);
-  padding: 18px 0;
+  padding-left: 20px;
 }
 
-.archive-talk + .archive-talk {
-  border-top: 1px solid var(--line);
+.archive-talk-image {
+  align-self: start;
+  background: rgba(3, 6, 11, 0.55);
+  border: 1px solid var(--line);
+  margin: 0;
+  overflow: hidden;
 }
 
-.archive-talk p,
+.archive-talk-image img {
+  aspect-ratio: 4 / 3;
+  display: block;
+  height: auto;
+  object-fit: contain;
+  width: 100%;
+}
+
+.archive-talk-copy {
+  min-width: 0;
+}
+
+.archive-speaker-pairs {
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.archive-speaker-pairs .archive-speaker-pair {
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.archive-talk-details p,
 .archive-empty {
   color: var(--muted);
   font-size: var(--font-sm);
   line-height: 1.6;
+}
+
+.archive-talk-location {
+  font-weight: 700;
+}
+
+.archive-talk-abstract {
+  border-top: 1px solid var(--line);
+  margin-top: 22px;
+  padding-top: 22px;
+}
+
+.archive-talk-abstract h3 {
+  color: var(--accent);
+  font-size: var(--font-sm);
+  margin: 0 0 12px;
+  text-transform: uppercase;
+}
+
+.archive-talk-abstract p + p {
+  margin-top: 14px;
 }
 
 .archive-presentations,
@@ -661,8 +836,30 @@ h3 {
   .hero,
   .split,
   .talk-card,
-  .archive-talk,
   .contact-section {
+    grid-template-columns: 1fr;
+  }
+
+  .archive-talk-summary {
+    gap: 10px 16px;
+    grid-template-columns: minmax(0, 1fr) 28px;
+  }
+
+  .archive-talk-summary .talk-date,
+  .archive-talk-heading {
+    grid-column: 1;
+  }
+
+  .archive-talk-summary::after {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+  }
+
+  .archive-talk-details {
+    padding-left: 20px;
+  }
+
+  .archive-talk-details-with-image {
     grid-template-columns: 1fr;
   }
 
@@ -688,15 +885,32 @@ h3 {
 }
 
 @media (max-width: 600px) {
+  .site-header {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
   .site-header nav {
-    gap: 8px;
-    justify-content: space-between;
+    display: grid;
+    gap: 0;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
     width: 100%;
   }
 
   .site-header nav a {
-    font-size: 0.8125rem;
+    font-size: 10px;
+    justify-content: center;
+    min-width: 0;
     white-space: nowrap;
+    width: 100%;
+  }
+
+  .nav-label-desktop {
+    display: none;
+  }
+
+  .nav-label-mobile {
+    display: inline;
   }
 }
 
@@ -708,5 +922,16 @@ h3 {
   .site-background {
     background-position: center 50%;
     will-change: auto;
+  }
+
+  .home-page .hero::before {
+    display: none;
+  }
+
+  .home-page .hero-copy,
+  .home-page .hero-about {
+    animation: none;
+    opacity: 1;
+    transform: none;
   }
 }

@@ -1,15 +1,19 @@
 import type { Metadata } from "next";
 import { ParallaxBackground } from "./components/ParallaxBackground";
 import { SiteHeader } from "./components/SiteHeader";
+import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "./site-metadata";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "NYU Space Talks",
-  description:
-    "A lecture series on the history, politics, and astroculture of outer space.",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: SITE_NAME,
+    template: `%s | ${SITE_NAME}`,
+  },
+  description: SITE_DESCRIPTION,
   icons: {
-    icon: { url: "/space-favicon.png", type: "image/png", sizes: "64x64" },
-    shortcut: "/space-favicon.png",
+    icon: { url: "/space-black.png", type: "image/png", sizes: "80x77" },
+    shortcut: "/space-black.png",
   },
 };
 

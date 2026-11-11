@@ -10,7 +10,7 @@ Final local results: 58/58 browser tests and 24/24 newsletter regression tests p
 - Enlarged navigation targets and made the header non-sticky on small screens.
 - Kept each time range intact while allowing time-zone pairs to wrap when space is limited.
 - Fixed the invalid archive heading margin and allowed headings, cards, and contact text to reflow at enlarged text sizes.
-- Disabled parallax and smooth scrolling for reduced-motion preferences, including changes made while the page is open.
+- Disabled parallax, smooth scrolling, the brief homepage entrance animation, and archive dropdown height animations for reduced-motion preferences, including changes made while the page is open.
 - Added contextual names to poster download/view links and kept newsletter status updates in a polite live region.
 - Used one continuous 76% dark overlay to improve text contrast over bright image regions without introducing section boundaries.
 
