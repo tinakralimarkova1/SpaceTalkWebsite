@@ -30,7 +30,7 @@ History, Politics, Astroculture
 
 The shared header uses the supplied NYU Arts & Science logo at `public/nyu-arts-and-science.svg`. Its link to `https://as.nyu.edu` is maintained in `app/components/SiteHeader.tsx`; sizing is in `app/globals.css`.
 
-The browser-tab icon is `public/space-black.png`, copied from the supplied transparent PNG. All pages use this icon through the metadata in `app/layout.tsx`.
+The browser-tab icon is `public/space-black.png`, copied from the supplied transparent PNG. All pages use this icon through the metadata in `app/layout.tsx`; its versioned URL forces browsers to refresh their favicon cache when the icon changes.
 
 Search and social metadata use `https://www.space-talks.com` as the canonical site URL. Shared values and per-page metadata are in `app/site-metadata.ts`; `app/robots.ts` and `app/sitemap.ts` generate the corresponding public files. Social previews reuse the browser-tab icon at `public/space-black.png`. If the canonical host changes, update `SITE_URL` before deployment and configure the other hostname to redirect to it in Vercel.
 

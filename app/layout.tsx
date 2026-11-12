@@ -12,8 +12,8 @@ export const metadata: Metadata = {
   },
   description: SITE_DESCRIPTION,
   icons: {
-    icon: { url: "/space-black.png", type: "image/png", sizes: "80x77" },
-    shortcut: "/space-black.png",
+    icon: { url: "/space-black.png?v=20261112", type: "image/png", sizes: "80x77" },
+    shortcut: "/space-black.png?v=20261112",
   },
 };
 
