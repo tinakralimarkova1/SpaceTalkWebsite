@@ -27,18 +27,18 @@ const seasonNumberBySlug: Record<string, string> = {
   "spring-2026": "Season XI",
 };
 
-const firstTalkNumberBySeason: Record<string, number> = {
-  "spring-2021": 2,
-  "fall-2021": 5,
-  "spring-2022": 9,
-  "fall-2022": 13,
-  "spring-2023": 16,
-  "fall-2023": 20,
-  "spring-2024": 24,
-  "fall-2024": 28,
-  "spring-2025": 32,
-  "fall-2025": 36,
-  "spring-2026": 40,
+const talkNumbersBySeason: Record<string, readonly number[]> = {
+  "spring-2021": [1, 2, 3],
+  "fall-2021": [4, 5, 6, 7],
+  "spring-2022": [8, 9, 10, 11],
+  "fall-2022": [12, 13, 14],
+  "spring-2023": [16, 17, 18, 19],
+  "fall-2023": [20, 22, 21, 23],
+  "spring-2024": [24, 25, 26, 27],
+  "fall-2024": [28, 29, 30, 31],
+  "spring-2025": [32, 34, 33, 35],
+  "fall-2025": [36, 38, 37, 39],
+  "spring-2026": [43, 42, 41, 40],
 };
 
 const abstractsBySeason = archiveAbstracts as unknown as Record<string, Record<string, string>>;
@@ -46,6 +46,29 @@ const imagesBySeason = archiveImages as unknown as Record<
   string,
   Record<string, { alt: string; path: string; source: string }>
 >;
+
+type ArchiveTalkRecord = (typeof archiveSeasons)[number]["talks"][number];
+
+function participantLabel(participant: { affiliation?: string; name: string }) {
+  return participant.affiliation
+    ? `${participant.name} (${participant.affiliation})`
+    : participant.name;
+}
+
+function archiveSpeakerLine(talk: ArchiveTalkRecord) {
+  if (talk.speakers?.length) return talk.speakers.map(participantLabel).join(", ");
+  if (talk.speaker) {
+    return talk.affiliation ? `${talk.speaker} (${talk.affiliation})` : talk.speaker;
+  }
+  if (talk.presentations?.length) return talk.presentations.map(participantLabel).join(", ");
+  if (talk.participants?.length) return talk.participants.map(participantLabel).join(", ");
+  return null;
+}
+
+function archiveDate(date: string) {
+  const weekdaySeparator = date.indexOf(",");
+  return weekdaySeparator === -1 ? date : date.slice(weekdaySeparator + 1).trim();
+}
 
 export default function ArchivePage() {
   const firstSeasonByYear = new Map<string, string>();
@@ -81,8 +104,8 @@ export default function ArchivePage() {
                 {season.talks.map((talk, talkIndex) => {
                   const abstract = abstractsBySeason[season.slug]?.[talk.title];
                   const sourceImage = imagesBySeason[season.slug]?.[talk.title];
-                  const firstTalkNumber = firstTalkNumberBySeason[season.slug];
-                  const talkNumber = firstTalkNumber ? firstTalkNumber + talkIndex : null;
+                  const talkNumber = talkNumbersBySeason[season.slug]?.[talkIndex];
+                  const speakerLine = archiveSpeakerLine(talk);
 
                   return (
                     <ArchiveTalkDisclosure
@@ -90,12 +113,18 @@ export default function ArchivePage() {
                       summary={(
                         <>
                         <span className="talk-date">
-                          <span>{talk.date}</span>
+                          <span>{archiveDate(talk.date)}</span>
                         </span>
                         <span className="archive-talk-heading">
                           <span className="archive-talk-title">
                             {talkNumber ? `${talkNumber}. ` : ""}{talk.title}
                           </span>
+                          {speakerLine ? (
+                            <span className="archive-talk-speaker">{speakerLine}</span>
+                          ) : null}
+                          {talk.comment ? (
+                            <span className="archive-talk-comment">{talk.comment}</span>
+                          ) : null}
                         </span>
                         </>
                       )}
@@ -114,25 +143,6 @@ export default function ArchivePage() {
                         ) : null}
                         <div className="archive-talk-copy">
                           {talk.context ? <p>{talk.context}</p> : null}
-                          {talk.speakers ? (
-                            <p className="speaker archive-speaker-pairs" aria-label="Speakers">
-                              {talk.speakers.map((speaker, index) => (
-                                <span className="archive-speaker-pair" key={speaker.name}>
-                                  {index > 0 ? ", " : ""}
-                                  {speaker.name}
-                                  {speaker.affiliation ? ` (${speaker.affiliation})` : ""}
-                                </span>
-                              ))}
-                            </p>
-                          ) : null}
-                          {talk.speaker ? (
-                            <p className="speaker">
-                              {talk.speaker}{talk.affiliation ? <span> ({talk.affiliation})</span> : null}
-                            </p>
-                          ) : null}
-                          {talk.comment ? (
-                            <p className="comment">{talk.comment}</p>
-                          ) : null}
                           {talk.chair ? <p>Chair: {talk.chair}</p> : null}
                           {abstract ? (
                             <div className="archive-talk-abstract">

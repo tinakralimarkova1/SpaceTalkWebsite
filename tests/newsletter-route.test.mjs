@@ -48,9 +48,10 @@ test("the real route and simulated Apps Script save once and return success on r
   }
   assert.equal(google.state.rows.length, 2);
   google.script.retryPendingNotifications();
-  assert.equal(google.state.rows[1].length, 11);
-  assert.equal(google.state.mail.length, 1);
+  assert.equal(google.state.rows[1].length, 17);
+  assert.equal(google.state.mail.length, 2);
   assert.equal(google.state.rows[1][5], "sent");
+  assert.equal(google.state.rows[1][11], "sent");
 });
 
 for (const body of ['{"ok":false}', "<html>Login required</html>", "null", '{"ok":"true"}', ""]) {

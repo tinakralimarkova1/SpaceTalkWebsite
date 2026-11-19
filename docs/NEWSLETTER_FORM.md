@@ -1,36 +1,38 @@
-# Newsletter signup: Google Sheets and owner notifications
+# Newsletter signup: Google Sheets, owner notifications, and subscriber confirmations
 
 ## What happens when someone submits
 
-The browser submits to `/api/newsletter`. Next.js validates the fields and forwards them to a secret-protected Google Apps Script web app. The script saves one row with a pending notification and returns success. A background trigger checks for queued notifications every five minutes.
+The browser submits to `/api/newsletter`. Next.js validates the fields and forwards them to a secret-protected Google Apps Script web app. The script saves one row with a pending owner notification and subscriber confirmation, then returns success. A background trigger checks both queues every five minutes.
 
-The Sheet records **Timestamp, First name, Last name, Organization, Email**, in that order. Organization is optional. Additional tracking columns record notification status, attempts, last/next attempt, sent time, and a sanitized error. The notification goes only to the owner configured in `NOTIFICATION_EMAIL`, initially `tinathetinytuna@gmail.com`. It includes the name, email, organization, and a link to the private Sheet. No confirmation or welcome email is sent to the subscriber. Website success confirms the Sheet entry, not email delivery.
+The Sheet records **Timestamp, First name, Last name, Organization, Email**, in that order. Organization is optional. Two tracking blocks record the owner notification and subscriber confirmation status, attempts, last/next attempt, sent time, and a sanitized error. The internal notification goes only to the owner configured in `NOTIFICATION_EMAIL`, initially `tinathetinytuna@gmail.com`. It includes the name, email, organization, and a link to the private Sheet. The subscriber receives a separate confirmation at the submitted email address. Replies and unsubscribe requests are directed to `NEWSLETTER_REPLY_TO`, initially `nyuspacetalks@gmail.com`. Website success confirms the Sheet entry, not either email's delivery.
 
-This revision restores owner notifications after the earlier Sheet-only version. No Supabase table or additional email service is required. Actual mail delivery still depends on Google authorization, sending quotas, and recipient spam filtering.
+No Supabase table or additional email service is required. Both messages use Google MailApp and share the sending account's daily quota. Actual delivery still depends on Google authorization, sending quotas, and recipient spam filtering.
 
 ## Update the existing Google script
 
 1. Open the target Sheet's **Extensions > Apps Script**. Replace the script with the contents of `google-apps-script/newsletter-signup.gs` and save.
-2. Run `setupNewsletterForm` using the account that will own the notification trigger. Approve Google's requested email-sending permissions as well as Sheet access. If the project uses explicit manifest scopes, include `https://www.googleapis.com/auth/script.send_mail`.
-3. In **Project Settings > Script Properties**, confirm `NOTIFICATION_EMAIL` is `tinathetinytuna@gmail.com`. Setup defaults to this address but preserves a previously configured recipient, so explicitly check it. Leave the existing `NEWSLETTER_FORM_SECRET` unchanged.
+2. Run `setupNewsletterForm` using the account that will own the email trigger. Approve Google's requested email-sending permissions as well as Sheet access. If the project uses explicit manifest scopes, include `https://www.googleapis.com/auth/script.send_mail`.
+3. In **Project Settings > Script Properties**, confirm `NOTIFICATION_EMAIL` is the intended internal recipient and `NEWSLETTER_REPLY_TO` is `nyuspacetalks@gmail.com`. Setup supplies defaults but preserves previously configured values, so explicitly check both. Leave the existing `NEWSLETTER_FORM_SECRET` unchanged.
 4. Open **Deploy > Manage deployments > Edit > New version > Deploy**. Keep the same `/exec` URL. The web app must still execute as the deploying owner.
-5. Submit one new test identity, confirm one Sheet row and website success, then run `retryPendingNotifications` manually or wait for the five-minute trigger. Confirm status becomes `sent` and check the recipient inbox/spam folder. Retrying that signup must not create a second row or another notification.
+5. Submit one new test identity, confirm one Sheet row and website success, then run `retryPendingNotifications` manually or wait for the five-minute trigger. Confirm both status cells become `sent`, the owner receives the internal notice, and the subscriber receives the confirmation. Check spam folders. Retrying that signup must not create a second row or additional emails.
 
-Setup preserves existing rows and the shared secret, adds tracking columns after any existing columns, and records their starting position in `SIGNUP_NOTIFICATION_COLUMN`. Rerunning setup validates and reuses those columns. Do not move or delete them. Historical signup rows have no new pending status and do not generate retroactive mail, including when those existing subscribers resubmit.
+Setup preserves existing rows and the shared secret, adds tracking blocks after any existing columns, and records their starting positions in `SIGNUP_NOTIFICATION_COLUMN` and `SIGNUP_CONFIRMATION_COLUMN`. Rerunning setup validates and reuses those columns. Do not move or delete them. Historical signup rows have no new pending status and do not generate retroactive mail, including when those existing subscribers resubmit.
 
-Setup replaces notification triggers owned by the account running it with one five-minute trigger; unrelated triggers are untouched. Other editors should remove duplicate old triggers they own. A shared script lock prevents simultaneous workers from sending the same pending row. Historical extra columns remain untouched and may be hidden, but do not delete columns before the new tracking block without updating its configured position. The new column names begin with `Signup notification` to distinguish them from old records.
+Setup replaces notification triggers owned by the account running it with one five-minute trigger; unrelated triggers are untouched. Other editors should remove duplicate old triggers they own. A shared script lock prevents simultaneous workers from sending the same pending row. Historical extra columns remain untouched and may be hidden, but do not delete columns before either tracking block without updating its configured position. The new column names begin with `Signup notification` and `Subscriber confirmation`.
 
 ## Change the recipient later
 
 Open **Apps Script > Project Settings > Script Properties** and change `NOTIFICATION_EMAIL` to the professor's approved email address. Save. No website changes or new web-app deployment are needed for a property-only change. Already queued notifications use the address configured when they are processed; sent notifications are not resent. Sender identity remains the Google account that owns the trigger, not the recipient. Transferring that account's ownership/authorization is a separate handover step.
 
+Change `NEWSLETTER_REPLY_TO` in the same place when subscriber replies should go elsewhere. This changes the reply address, not the visible sender. To send from `nyuspacetalks@gmail.com`, that Google account must own and authorize the Apps Script trigger, or the sending account must be configured to use an approved Gmail alias.
+
 ## Retry and failure behavior
 
-- Runs process up to ten due notifications, with a twenty-second processing budget between sends. Backlogs may take multiple trigger runs.
+- Runs process up to ten due emails across both queues, with a twenty-second processing budget between sends. Backlogs may take multiple trigger runs.
 - A failed send retries after increasing delays (5, 10, 20, then 40 minutes), stopping at five attempts with status `failed`.
 - If the sending quota is exhausted, rows stay queued without consuming attempts. They resume on a later run when quota is available.
 - Missing permissions/configuration or unavailable Sheets can fail the trigger itself; inspect **Executions** if pending rows stop progressing. `sent` means Google accepted the send, not proof of inbox delivery.
-- To retry a failed notification after resolving the cause, set its `Signup notification status` to `pending`, attempts to `0`, and clear its next-attempt cell; then run `retryPendingNotifications`.
+- To retry a failed email after resolving the cause, set the relevant owner or subscriber status to `pending`, attempts to `0`, and clear its next-attempt cell; then run `retryPendingNotifications`.
 - Duplicate form submissions do not queue additional mail. However, exactly-once delivery cannot be guaranteed: if Google accepts an email but the execution stops before recording `sent`, a later retry may send it again. The Sheet row itself remains deduplicated.
 - Old subscribers are not backfilled automatically. Use a new email identity for the acceptance test.
 
@@ -70,7 +72,7 @@ The upstream request times out after 45 seconds within a 60-second function budg
 - Shared networks share a client limit. Adjust `RATE_PER_CLIENT`, `RATE_WINDOW_MS`, or `RATE_PER_DAY` in the script and redeploy if necessary.
 - Limits are updated under a script lock, survive server restarts, and expire automatically. Expired properties are pruned on the next request.
 - Limited requests receive HTTP 429 and `Retry-After`. Limits protect downstream writes, not all incoming traffic; floods can still consume execution quotas. Consider a server-verified CAPTCHA or firewall if needed.
-- This is not double opt-in and does not verify email ownership.
+- This remains single opt-in: the confirmation acknowledges signup but does not require the subscriber to click a verification link.
 
 ## Maintenance and handover
 
@@ -82,7 +84,7 @@ Saving script source is not enough to update its web endpoint: deploy a **New ve
 
 ## Verification
 
-Run `npm test`, `npm run lint`, `npm run build`, and `npm audit`. The isolated regression tests never contact Google. They cover validation, success/error responses, rate limits, formula escaping, deduplication, queued delivery/retries, quota exhaustion, recipient changes, concurrent workers, and upgrades without historical mail.
+Run `npm test`, `npm run lint`, `npm run build`, and `npm audit`. The isolated regression tests never contact Google. They cover validation, success/error responses, rate limits, formula escaping, deduplication, both queued emails and retries, quota exhaustion, recipient and reply-address changes, concurrent workers, and upgrades without historical mail.
 
 For live acceptance, follow the new-identity signup and notification test above. Test formula-like inputs such as =1+1 in a separate test Sheet. Remove agreed test rows after verification.
 

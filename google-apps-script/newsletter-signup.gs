@@ -6,10 +6,16 @@ const RATE_WINDOW_MS = 10 * 60 * 1000;
 const RATE_PER_CLIENT = 5;
 const RATE_PER_DAY = 200;
 const DEFAULT_NOTIFICATION_EMAIL = "tinathetinytuna@gmail.com";
+const DEFAULT_REPLY_TO_EMAIL = "nyuspacetalks@gmail.com";
 const NOTIFICATION_HEADERS = [
   "Signup notification status", "Signup notification attempts",
   "Signup notification last attempt", "Signup notification next attempt",
   "Signup notification sent at", "Signup notification error",
+];
+const CONFIRMATION_HEADERS = [
+  "Subscriber confirmation status", "Subscriber confirmation attempts",
+  "Subscriber confirmation last attempt", "Subscriber confirmation next attempt",
+  "Subscriber confirmation sent at", "Subscriber confirmation error",
 ];
 const MAX_NOTIFICATION_ATTEMPTS = 5;
 
@@ -44,10 +50,18 @@ function setupNewsletterForm() {
       properties.setProperties({ SIGNUP_NOTIFICATION_COLUMN: String(column) });
     }
     notificationColumn_(sheet, properties);
+    if (!properties.getProperty("SIGNUP_CONFIRMATION_COLUMN")) {
+      const column = Math.max(SHEET_HEADERS.length, sheet.getLastColumn()) + 1;
+      sheet.getRange(1, column, 1, CONFIRMATION_HEADERS.length).setValues([CONFIRMATION_HEADERS]);
+      properties.setProperties({ SIGNUP_CONFIRMATION_COLUMN: String(column) });
+    }
+    confirmationColumn_(sheet, properties);
     properties.setProperties({
       NOTIFICATION_EMAIL: properties.getProperty("NOTIFICATION_EMAIL") || DEFAULT_NOTIFICATION_EMAIL,
+      NEWSLETTER_REPLY_TO: properties.getProperty("NEWSLETTER_REPLY_TO") || DEFAULT_REPLY_TO_EMAIL,
     });
     notificationRecipient_(properties);
+    confirmationReplyTo_(properties);
     // One trigger per setup owner; the shared lock also protects against other owners' triggers.
     ScriptApp.getProjectTriggers().forEach(function (trigger) {
       if (trigger.getHandlerFunction() === "retryPendingNotifications") {
@@ -56,7 +70,7 @@ function setupNewsletterForm() {
     });
     ScriptApp.newTrigger("retryPendingNotifications").timeBased().everyMinutes(5).create();
     SpreadsheetApp.flush();
-    console.log("Setup complete. Check NOTIFICATION_EMAIL and NEWSLETTER_FORM_SECRET in Project Settings > Script Properties. New signups queue an email notification.");
+    console.log("Setup complete. Check NOTIFICATION_EMAIL, NEWSLETTER_REPLY_TO, and NEWSLETTER_FORM_SECRET in Project Settings > Script Properties. New signups queue an owner notification and subscriber confirmation.");
   } finally {
     lock.releaseLock();
   }
@@ -93,13 +107,20 @@ function doPost(event) {
         // Same response for new and existing addresses; never disclose membership.
         return jsonResponse_({ ok: true });
       }
-      const column = notificationColumn_(sheet, properties);
+      const notificationColumn = notificationColumn_(sheet, properties);
+      const confirmationColumn = confirmationColumn_(sheet, properties);
       const row = [
         new Date(), literalCell_(firstName), literalCell_(lastName), literalCell_(organization), literalCell_(email),
       ];
-      while (row.length < column - 1) row.push("");
-      // Signup and pending status are saved in one row write, before returning success.
-      sheet.appendRow(row.concat(["pending", 0, "", "", "", ""]));
+      const lastTrackingColumn = Math.max(
+        notificationColumn + NOTIFICATION_HEADERS.length - 1,
+        confirmationColumn + CONFIRMATION_HEADERS.length - 1,
+      );
+      while (row.length < lastTrackingColumn) row.push("");
+      // Signup and both pending email states are saved in one row write before returning success.
+      row.splice(notificationColumn - 1, NOTIFICATION_HEADERS.length, "pending", 0, "", "", "", "");
+      row.splice(confirmationColumn - 1, CONFIRMATION_HEADERS.length, "pending", 0, "", "", "", "");
+      sheet.appendRow(row);
       SpreadsheetApp.flush();
       return jsonResponse_({ ok: true });
     } finally {
@@ -136,33 +157,22 @@ function retryPendingNotifications() {
   try {
     const properties = PropertiesService.getScriptProperties();
     const recipient = notificationRecipient_(properties);
+    const replyTo = confirmationReplyTo_(properties);
     const sheet = signupSheet_(properties);
-    const column = notificationColumn_(sheet, properties);
+    const notificationColumn = notificationColumn_(sheet, properties);
+    const confirmationColumn = confirmationColumn_(sheet, properties);
     if (sheet.getLastRow() < 2) return;
-    const rows = sheet.getRange(2, 1, sheet.getLastRow() - 1, column + NOTIFICATION_HEADERS.length - 1).getValues();
+    const lastTrackingColumn = Math.max(
+      notificationColumn + NOTIFICATION_HEADERS.length - 1,
+      confirmationColumn + CONFIRMATION_HEADERS.length - 1,
+    );
+    const rows = sheet.getRange(2, 1, sheet.getLastRow() - 1, lastTrackingColumn).getValues();
     const deadline = Date.now() + 20000;
     let processed = 0;
     for (let index = 0; index < rows.length; index++) {
       if (processed >= 10 || Date.now() >= deadline) break;
       const row = rows[index];
-      const state = row.slice(column - 1);
-      // Blank states belong to historical signups and must not send retroactive mail.
-      if (state[0] !== "pending" && state[0] !== "retry") continue;
-      if (state[3] && new Date(state[3]).getTime() > Date.now()) continue;
-      const range = sheet.getRange(index + 2, column, 1, NOTIFICATION_HEADERS.length);
-      const attempts = Number(state[1]) || 0;
-      if (attempts >= MAX_NOTIFICATION_ATTEMPTS) {
-        state[0] = "failed";
-        range.setValues([state]);
-        continue;
-      }
-      if (MailApp.getRemainingDailyQuota() < 1) break;
-      processed++;
-      const attemptedAt = new Date();
-      const nextAttempt = new Date(Date.now() + 5 * 60 * 1000 * Math.pow(2, attempts));
-      range.setValues([["retry", attempts + 1, attemptedAt, nextAttempt, "", ""]]);
-      SpreadsheetApp.flush();
-      try {
+      let result = processQueuedEmail_(sheet, index + 2, notificationColumn, NOTIFICATION_HEADERS, function () {
         MailApp.sendEmail({
           to: recipient,
           subject: "NYU Space Talks: new newsletter signup",
@@ -175,25 +185,77 @@ function retryPendingNotifications() {
           ].join("\n"),
           name: "NYU Space Talks",
         });
-      } catch {
-        range.setValues([[
-          attempts + 1 >= MAX_NOTIFICATION_ATTEMPTS ? "failed" : "retry",
-          attempts + 1, attemptedAt, nextAttempt, "", "Mail send failed; check authorization and sending quota.",
-        ]]);
-        continue;
-      }
-      range.setValues([["sent", attempts + 1, attemptedAt, "", new Date(), ""]]);
-      SpreadsheetApp.flush();
+      }, row);
+      if (result === "quota") break;
+      if (result === "processed") processed++;
+      if (processed >= 10 || Date.now() >= deadline) break;
+
+      result = processQueuedEmail_(sheet, index + 2, confirmationColumn, CONFIRMATION_HEADERS, function () {
+        MailApp.sendEmail({
+          to: String(row[4]).trim().toLowerCase(),
+          subject: "You're subscribed to NYU Space Talks",
+          body: [
+            "Hello " + row[1] + ",", "",
+            "Thank you for subscribing to the NYU Space Talks newsletter.",
+            "You are now on our mailing list and will receive updates about upcoming talks and related news.", "",
+            "If you did not sign up or would like to unsubscribe, reply to this email.", "",
+            "NYU Space Talks",
+          ].join("\n"),
+          name: "NYU Space Talks",
+          replyTo: replyTo,
+        });
+      }, row);
+      if (result === "quota") break;
+      if (result === "processed") processed++;
     }
   } finally {
     lock.releaseLock();
   }
 }
 
+function processQueuedEmail_(sheet, rowNumber, column, headers, sendEmail, row) {
+  const state = row.slice(column - 1, column - 1 + headers.length);
+  // Blank states belong to historical signups and must not send retroactive mail.
+  if (state[0] !== "pending" && state[0] !== "retry") return "skipped";
+  if (state[3] && new Date(state[3]).getTime() > Date.now()) return "skipped";
+  const range = sheet.getRange(rowNumber, column, 1, headers.length);
+  const attempts = Number(state[1]) || 0;
+  if (attempts >= MAX_NOTIFICATION_ATTEMPTS) {
+    state[0] = "failed";
+    range.setValues([state]);
+    return "skipped";
+  }
+  if (MailApp.getRemainingDailyQuota() < 1) return "quota";
+  const attemptedAt = new Date();
+  const nextAttempt = new Date(Date.now() + 5 * 60 * 1000 * Math.pow(2, attempts));
+  range.setValues([["retry", attempts + 1, attemptedAt, nextAttempt, "", ""]]);
+  SpreadsheetApp.flush();
+  try {
+    sendEmail(row);
+  } catch {
+    range.setValues([[
+      attempts + 1 >= MAX_NOTIFICATION_ATTEMPTS ? "failed" : "retry",
+      attempts + 1, attemptedAt, nextAttempt, "", "Mail send failed; check authorization and sending quota.",
+    ]]);
+    return "processed";
+  }
+  range.setValues([["sent", attempts + 1, attemptedAt, "", new Date(), ""]]);
+  SpreadsheetApp.flush();
+  return "processed";
+}
+
 function notificationRecipient_(properties) {
   const recipient = (properties.getProperty("NOTIFICATION_EMAIL") || "").trim();
   if (!/^[^\s@,;<>]+@[^\s@,;<>]+\.[^\s@,;<>]+$/.test(recipient)) {
     throw new Error("Set NOTIFICATION_EMAIL to one recipient in Script Properties.");
+  }
+  return recipient;
+}
+
+function confirmationReplyTo_(properties) {
+  const recipient = (properties.getProperty("NEWSLETTER_REPLY_TO") || "").trim();
+  if (!/^[^\s@,;<>]+@[^\s@,;<>]+\.[^\s@,;<>]+$/.test(recipient)) {
+    throw new Error("Set NEWSLETTER_REPLY_TO to one recipient in Script Properties.");
   }
   return recipient;
 }
@@ -206,6 +268,18 @@ function notificationColumn_(sheet, properties) {
   const headers = sheet.getRange(1, column, 1, NOTIFICATION_HEADERS.length).getValues()[0];
   if (headers.some(function (header, index) { return header !== NOTIFICATION_HEADERS[index]; })) {
     throw new Error("Notification columns changed. Restore their headers and position.");
+  }
+  return column;
+}
+
+function confirmationColumn_(sheet, properties) {
+  const column = Number(properties.getProperty("SIGNUP_CONFIRMATION_COLUMN"));
+  if (!Number.isInteger(column) || column <= SHEET_HEADERS.length) {
+    throw new Error("Run setupNewsletterForm before enabling confirmations.");
+  }
+  const headers = sheet.getRange(1, column, 1, CONFIRMATION_HEADERS.length).getValues()[0];
+  if (headers.some(function (header, index) { return header !== CONFIRMATION_HEADERS[index]; })) {
+    throw new Error("Confirmation columns changed. Restore their headers and position.");
   }
   return column;
 }

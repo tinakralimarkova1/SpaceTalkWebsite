@@ -505,6 +505,7 @@ export const archiveSeasons: { season: string; slug: string; talks: ArchiveTalk[
 export const talks = [
   {
     number: 44,
+    startsAt: "2026-09-15T14:00:00Z",
     title:
       "A Mountain in Space: Taixu and the Buddhist Imagination of the Cosmos",
     speaker: "Ben Van Overmeire",
@@ -520,6 +521,7 @@ export const talks = [
   },
   {
     number: 45,
+    startsAt: "2026-10-13T14:00:00Z",
     title:
       "SETI@home 2.0: UFOs, Politics and the Science of Extraterrestrial Intelligence",
     speaker: "Christian Peters",
@@ -536,6 +538,7 @@ export const talks = [
   },
   {
     number: 46,
+    startsAt: "2026-11-03T15:00:00Z",
     title:
       "The Kuafu Paradox: Why China's Flagship Solar Mission Failed to Launch",
     speaker: "Zhihui Zhang",
@@ -552,6 +555,7 @@ export const talks = [
   },
   {
     number: 47,
+    startsAt: "2026-12-01T15:00:00Z",
     title:
       "When Is a Planet Just Right? Su-Shu Huang and the Concept of the Habitable Zone",
     speaker: "Michael Robinson",

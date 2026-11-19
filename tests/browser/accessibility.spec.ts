@@ -82,37 +82,80 @@ test("archive roundtables pair every speaker with their institution", async ({ p
   const roundtable = page.locator("#fall-2024 .archive-talk").filter({
     hasText: "Whither a Planetary Turn?",
   });
-  await roundtable.locator("summary").click();
-
-  await expect(roundtable.locator(".archive-speaker-pairs")).toHaveText(
+  await expect(roundtable.locator("summary .archive-talk-speaker")).toHaveText(
     "Thore Bjørnvig (Copenhagen), Alexander C.T. Geppert (NYU/NYU Shanghai), Haitian Ma (Universiteit van Amsterdam), Tilmann Siebeneichner (ZZF Potsdam), Brad Tabas (ENSTA Bretagne)",
   );
-  await expect(roundtable.locator(".archive-speaker-pairs")).toHaveCSS("color", "rgb(170, 178, 196)");
+  await expect(roundtable.locator("summary .archive-talk-speaker")).toHaveCSS("color", "rgb(170, 178, 196)");
+
+  await roundtable.locator("summary").click();
+  await expect(roundtable.locator(".archive-talk-details .archive-talk-abstract")).toBeVisible();
+  await expect(roundtable.locator(".archive-talk-details")).toHaveCSS("border-top-width", "0px");
+  await expect(roundtable.locator(".archive-talk-abstract")).toHaveCSS("border-top-width", "0px");
+  await expect(roundtable.locator(".archive-talk-details .speaker")).toHaveCount(0);
+  await expect(roundtable.locator(".archive-talk-details .comment")).toHaveCount(0);
 });
 
 test("talk numbers follow the historical sequence and skip Summer 2021", async ({ page }) => {
   await page.goto("/");
-  await expect(page.locator(".talk-card h3")).toHaveText([
-    /44\. A Mountain in Space/,
-    /45\. SETI@home 2\.0/,
-    /46\. The Kuafu Paradox/,
-    /47\. When Is a Planet Just Right\?/,
-  ]);
+  const currentTalkNumbers = await page.locator(".talk-card h3").allTextContents();
+  expect(currentTalkNumbers.map((title) => Number.parseInt(title, 10)).sort()).toEqual([44, 45, 46, 47]);
 
   await page.goto("/archive");
   await expect(page.locator("#spring-2026 .archive-talk-title")).toHaveText([
-    /40\. How to Think Like a Space Billionaire/,
-    /41\. Italy's Participation in Spacelab/,
-    /42\. Eyes in the Sky/,
-    /43\. Prelude to the Space Age/,
+    /43\. How to Think Like a Space Billionaire/,
+    /42\. Italy's Participation in Spacelab/,
+    /41\. Eyes in the Sky/,
+    /40\. Prelude to the Space Age/,
   ]);
   await expect(page.locator("#spring-2021 .archive-talk-title")).toHaveText([
-    /2\. Dark Skies/,
-    /3\. The Eighth Continent/,
-    /4\. Militant Astroculture/,
+    /1\. Dark Skies/,
+    /2\. The Eighth Continent/,
+    /3\. Militant Astroculture/,
+  ]);
+  await expect(page.locator("#fall-2023 .archive-talk-title")).toHaveText([
+    /20\. Mexico in Orbit/,
+    /22\. Woman\/Astronaut/,
+    /21\. Politics, Personalities and Space Programs/,
+    /23\. The LDEF/,
+  ]);
+  await expect(page.locator("#spring-2025 .archive-talk-title")).toHaveText([
+    /32\. History and Narrative in China's Space Program/,
+    /34\. Where Were They\?/,
+    /33\. The Société Astronomique de France/,
+    /35\. Space on Display/,
+  ]);
+  await expect(page.locator("#fall-2025 .archive-talk-title")).toHaveText([
+    /36\. History, Communication and the Global Imagination/,
+    /38\. Territory beyond Earth/,
+    /37\. The Post-Soviet Space Deal/,
+    /39\. 'New Planet, Dad\. Please!'/,
   ]);
   const summerTitles = await page.locator("#summer-2021 .archive-talk-title").allTextContents();
   expect(summerTitles.every((title) => !/^\d+\./.test(title))).toBe(true);
+});
+
+test("current season separates upcoming and past talks and closes past registration", async ({ page }) => {
+  await page.goto("/");
+
+  const upcoming = page.locator(".upcoming-talks .talk-card");
+  const past = page.locator(".past-talks .talk-card");
+  const upcomingStarts = await upcoming.evaluateAll((cards) => cards.map((card) => card.getAttribute("data-starts-at") || ""));
+  const pastStarts = await past.evaluateAll((cards) => cards.map((card) => card.getAttribute("data-starts-at") || ""));
+
+  expect(upcomingStarts).toEqual([...upcomingStarts].sort());
+  expect(pastStarts).toEqual([...pastStarts].sort().reverse());
+  await expect(upcoming.getByRole("link", { name: "Register" })).toHaveCount(await upcoming.count());
+  await expect(past.getByRole("link", { name: "Register" })).toHaveCount(0);
+  if (pastStarts.length > 0) await expect(page.locator(".schedule-divider")).toHaveText("Past talks");
+});
+
+test("archive dates omit weekday names", async ({ page }) => {
+  await page.goto("/archive");
+  const dates = await page.locator(".archive-talk-summary .talk-date").allTextContents();
+
+  expect(dates.length).toBeGreaterThan(0);
+  expect(dates[0]).toBe("17 February 2026");
+  expect(dates.every((date) => !/^(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday),/.test(date))).toBe(true);
 });
 
 test("archive dropdown animation respects reduced motion", async ({ page }) => {

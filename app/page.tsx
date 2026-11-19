@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { connection } from "next/server";
 import FoldText from "@/components/FoldText";
 import { NewsletterForm } from "./components/NewsletterForm";
 import { talks } from "./data";
@@ -11,7 +12,75 @@ export const metadata = createPageMetadata({
   absoluteTitle: true,
 });
 
-export default function Home() {
+type SeasonTalk = (typeof talks)[number];
+
+function TalkCard({ registrationOpen, talk }: { registrationOpen: boolean; talk: SeasonTalk }) {
+  return (
+    <article className="talk-card" data-starts-at={talk.startsAt}>
+      <div className="talk-date">
+        <span>{talk.date}</span>
+        <strong className="talk-times">
+          {[talk.time.split("/").slice(0, 2), talk.time.split("/").slice(2)].map(
+            (timeRow) => (
+              <span className="talk-time-row" key={timeRow.join("/")}>
+                {timeRow.map((time) => {
+                  const [range, zone] = time.trim().split(/\s+/);
+                  return (
+                    <span className="talk-time" key={time}>
+                      <span className="talk-time-range">{range}</span>{" "}{zone}
+                    </span>
+                  );
+                })}
+              </span>
+            ),
+          )}
+        </strong>
+      </div>
+      <div className="talk-heading">
+        <h3>{talk.number}. {talk.title}</h3>
+        <p className="speaker">
+          {talk.speaker} <span>({talk.affiliation})</span>
+        </p>
+        {talk.comment ? <p className="comment">{talk.comment}</p> : null}
+      </div>
+      <div className="talk-image-frame">
+        <Image
+          className="talk-image"
+          src={talk.image}
+          alt={talk.imageAlt}
+          fill
+          sizes="(max-width: 820px) 100vw, 28vw"
+        />
+      </div>
+      <div className="talk-content">
+        <p className="talk-description">{talk.description}</p>
+        {registrationOpen ? (
+          <a
+            className="rsvp-button"
+            href={talk.registrationUrl}
+            rel="noreferrer"
+            target="_blank"
+          >
+            Register
+          </a>
+        ) : null}
+      </div>
+    </article>
+  );
+}
+
+export default async function Home() {
+  await connection();
+  // The request time determines which registration links remain available.
+  // eslint-disable-next-line react-hooks/purity
+  const now = Date.now();
+  const upcomingTalks = talks
+    .filter((talk) => new Date(talk.startsAt).getTime() > now)
+    .sort((first, second) => first.startsAt.localeCompare(second.startsAt));
+  const pastTalks = talks
+    .filter((talk) => new Date(talk.startsAt).getTime() <= now)
+    .sort((first, second) => second.startsAt.localeCompare(first.startsAt));
+
   return (
     <main className="home-page" id="main-content" tabIndex={-1}>
       <section id="about" className="hero">
@@ -73,58 +142,23 @@ export default function Home() {
           <p className="section-label">/ Fall 2026</p>
           <h2>Season XII</h2>
         </div>
-        <div className="talk-list">
-          {talks.map((talk) => (
-            <article className="talk-card" key={talk.title}>
-              <div className="talk-date">
-                <span>{talk.date}</span>
-                <strong className="talk-times">
-                  {[talk.time.split("/").slice(0, 2), talk.time.split("/").slice(2)].map(
-                    (timeRow) => (
-                      <span className="talk-time-row" key={timeRow.join("/")}>
-                        {timeRow.map((time) => {
-                          const [range, zone] = time.trim().split(/\s+/);
-                          return (
-                            <span className="talk-time" key={time}>
-                              <span className="talk-time-range">{range}</span>{" "}{zone}
-                            </span>
-                          );
-                        })}
-                      </span>
-                    ),
-                  )}
-                </strong>
-              </div>
-              <div className="talk-heading">
-                <h3>{talk.number}. {talk.title}</h3>
-                <p className="speaker">
-                  {talk.speaker} <span>({talk.affiliation})</span>
-                </p>
-                {talk.comment ? <p className="comment">{talk.comment}</p> : null}
-              </div>
-              <div className="talk-image-frame">
-                <Image
-                  className="talk-image"
-                  src={talk.image}
-                  alt={talk.imageAlt}
-                  fill
-                  sizes="(max-width: 820px) 100vw, 28vw"
-                />
-              </div>
-              <div className="talk-content">
-                <p className="talk-description">{talk.description}</p>
-                <a
-                  className="rsvp-button"
-                  href={talk.registrationUrl}
-                  rel="noreferrer"
-                  target="_blank"
-                >
-                  Register
-                </a>
-              </div>
-            </article>
-          ))}
-        </div>
+        {upcomingTalks.length > 0 ? (
+          <div className="talk-list upcoming-talks" aria-label="Upcoming talks">
+            {upcomingTalks.map((talk) => (
+              <TalkCard key={talk.title} registrationOpen talk={talk} />
+            ))}
+          </div>
+        ) : null}
+        {pastTalks.length > 0 ? (
+          <>
+            <div className="schedule-divider"><span>Past talks</span></div>
+            <div className="talk-list past-talks" aria-label="Past talks">
+              {pastTalks.map((talk) => (
+                <TalkCard key={talk.title} registrationOpen={false} talk={talk} />
+              ))}
+            </div>
+          </>
+        ) : null}
       </section>
 
       <section id="contact" className="section contact-section">

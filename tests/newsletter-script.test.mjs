@@ -2,21 +2,29 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { createAppsScriptHarness } from "./apps-script-harness.mjs";
 
-test("a saved signup queues a notification to the tester without delaying success", () => {
+test("a saved signup queues owner and subscriber emails without delaying success", () => {
   const h = createAppsScriptHarness();
   assert.deepEqual(h.submit(), { ok: true });
   assert.equal(h.state.rows.length, 2);
-  assert.equal(h.state.rows[1].length, 11);
+  assert.equal(h.state.rows[1].length, 17);
   assert.equal(h.state.rows[1][1], "Test");
   assert.equal(h.state.rows[1][3], "NYU");
   assert.equal(h.state.rows[1][4], "test@example.org");
   assert.equal(h.state.mail.length, 0);
   assert.equal(h.state.rows[1][5], "pending");
+  assert.equal(h.state.rows[1][11], "pending");
   h.script.retryPendingNotifications();
-  assert.equal(h.state.mail.length, 1);
+  assert.equal(h.state.mail.length, 2);
   assert.equal(h.state.mail[0].to, "tinathetinytuna@gmail.com");
   assert.match(h.state.mail[0].body, /Name: Test Person\nEmail: test@example.org\nOrganization: NYU/);
+  assert.equal(h.state.mail[1].to, "test@example.org");
+  assert.equal(h.state.mail[1].replyTo, "nyuspacetalks@gmail.com");
+  assert.equal(h.state.mail[1].subject, "You're subscribed to NYU Space Talks");
+  assert.match(h.state.mail[1].body, /Hello Test,/);
+  assert.match(h.state.mail[1].body, /Thank you for subscribing to the NYU Space Talks newsletter/);
+  assert.match(h.state.mail[1].body, /reply to this email/);
   assert.equal(h.state.rows[1][5], "sent");
+  assert.equal(h.state.rows[1][11], "sent");
   assert.deepEqual(h.state.triggers, ["retryPendingNotifications"]);
 });
 
@@ -30,7 +38,7 @@ test("case-insensitive retries leave exactly one row", () => {
   h.script.retryPendingNotifications();
   h.submit();
   h.script.retryPendingNotifications();
-  assert.equal(h.state.mail.length, 1);
+  assert.equal(h.state.mail.length, 2);
 });
 
 test("formula-like inputs are written as literal cells", () => {
@@ -93,7 +101,9 @@ test("upgrade preserves historical rows, columns, secret, and configured recipie
   h.script.setupNewsletterForm();
   assert.equal(h.state.properties.NEWSLETTER_FORM_SECRET, "test-secret");
   assert.equal(h.state.properties.NOTIFICATION_EMAIL, "professor@example.org");
+  assert.equal(h.state.properties.NEWSLETTER_REPLY_TO, "nyuspacetalks@gmail.com");
   assert.equal(h.state.properties.SIGNUP_NOTIFICATION_COLUMN, "8");
+  assert.equal(h.state.properties.SIGNUP_CONFIRMATION_COLUMN, "14");
   assert.deepEqual(h.state.triggers, ["unrelatedTask", "retryPendingNotifications"]);
   assert.deepEqual(h.state.rows[1], row);
   h.script.retryPendingNotifications();
@@ -101,7 +111,9 @@ test("upgrade preserves historical rows, columns, secret, and configured recipie
   h.submit();
   h.script.retryPendingNotifications();
   assert.equal(h.state.mail[0].to, "professor@example.org");
+  assert.equal(h.state.mail[1].to, "test@example.org");
   assert.equal(h.state.rows[2][7], "sent");
+  assert.equal(h.state.rows[2][13], "sent");
 });
 
 test("setup preserves unrelated extra columns and rejects changed signup headers", () => {
@@ -122,6 +134,9 @@ test("delivery failures retry later without losing a signup or changing its succ
   assert.equal(h.state.rows[1][5], "retry");
   assert.equal(h.state.rows[1][6], 1);
   assert.match(h.state.rows[1][10], /Mail send failed/);
+  assert.equal(h.state.rows[1][11], "retry");
+  assert.equal(h.state.rows[1][12], 1);
+  assert.match(h.state.rows[1][16], /Mail send failed/);
   h.state.failMail = false;
   h.script.retryPendingNotifications();
   assert.equal(h.state.mail.length, 0);
@@ -130,6 +145,10 @@ test("delivery failures retry later without losing a signup or changing its succ
   assert.equal(h.state.rows[1][5], "sent");
   assert.equal(h.state.rows[1][6], 2);
   assert.equal(h.state.rows[1][10], "");
+  assert.equal(h.state.rows[1][11], "sent");
+  assert.equal(h.state.rows[1][12], 2);
+  assert.equal(h.state.rows[1][16], "");
+  assert.equal(h.state.mail.length, 2);
   assert.equal(h.state.rows.length, 2);
 });
 
@@ -143,6 +162,12 @@ test("exhausted sending quota leaves notifications queued without consuming atte
   h.state.quota = 1;
   h.script.retryPendingNotifications();
   assert.equal(h.state.mail.length, 1);
+  assert.equal(h.state.rows[1][5], "sent");
+  assert.equal(h.state.rows[1][11], "pending");
+  h.state.quota = 1;
+  h.script.retryPendingNotifications();
+  assert.equal(h.state.mail.length, 2);
+  assert.equal(h.state.rows[1][11], "sent");
 });
 
 test("delivery stops after five failed attempts and can be manually requeued", () => {
@@ -167,9 +192,12 @@ test("recipient changes apply to queued mail and user input cannot override them
   const h = createAppsScriptHarness();
   h.submit({ notificationEmail: "attacker@example.org", organization: "" });
   h.state.properties.NOTIFICATION_EMAIL = "professor@example.org";
+  h.state.properties.NEWSLETTER_REPLY_TO = "contact@example.org";
   h.script.retryPendingNotifications();
   assert.equal(h.state.mail[0].to, "professor@example.org");
   assert.match(h.state.mail[0].body, /Organization: Not provided/);
+  assert.equal(h.state.mail[1].to, "test@example.org");
+  assert.equal(h.state.mail[1].replyTo, "contact@example.org");
 });
 
 test("invalid notification configuration fails closed and concurrent workers cannot duplicate mail", () => {
@@ -182,7 +210,15 @@ test("invalid notification configuration fails closed and concurrent workers can
   h.state.properties.NOTIFICATION_EMAIL = "professor@example.org";
   h.state.onMail = () => h.script.retryPendingNotifications();
   h.script.retryPendingNotifications();
-  assert.equal(h.state.mail.length, 1);
+  assert.equal(h.state.mail.length, 2);
+});
+
+test("invalid confirmation reply-to configuration fails closed", () => {
+  const h = createAppsScriptHarness();
+  h.submit();
+  h.state.properties.NEWSLETTER_REPLY_TO = "one@example.org,two@example.org";
+  assert.throws(() => h.script.retryPendingNotifications(), /one recipient/);
+  assert.equal(h.state.mail.length, 0);
 });
 
 test("changed notification headers cannot silently discard or misroute pending mail", () => {
@@ -201,5 +237,7 @@ test("notification runs are bounded and resume remaining rows next time", () => 
   h.script.retryPendingNotifications();
   assert.equal(h.state.mail.length, 10);
   h.script.retryPendingNotifications();
-  assert.equal(h.state.mail.length, 12);
+  assert.equal(h.state.mail.length, 20);
+  h.script.retryPendingNotifications();
+  assert.equal(h.state.mail.length, 24);
 });

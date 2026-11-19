@@ -19,6 +19,6 @@ The original Summer 2021 page contains session programs and participant lists ra
 
 Summer 2021 is not assigned a numbered season because no season number is provided by the source. No location was invented for sessions without an explicit location. Spring 2021 remains Season I.
 
-Historical talk numbers are rendered from `firstTalkNumberBySeason` in `app/archive/page.tsx`. Summer 2021 sessions are intentionally excluded from the sequence. The existing public archive begins with talk 2 in Spring 2021; talk 1 is not represented in the available archive content. Current-season numbers are stored directly with each talk in `app/data.ts` so newly announced talks do not renumber historical entries.
+Historical talk numbers are rendered from the fixed `talkNumbersBySeason` assignments in `app/archive/page.tsx`; they are not calculated from dates because the official sequence does not always match chronological display order. Summer 2021 sessions are intentionally excluded. Talk 15 is reserved for Nina Klimburg-Witjes but is not represented in the currently available archive content. Current-season numbers are stored directly with each talk in `app/data.ts` so newly announced talks do not renumber historical entries.
 
 After edits, run the build and browser tests described in `docs/ACCESSIBILITY.md`. The browser suite verifies the 2021 event and participant counts, the 42 abstract records, 21 sourced images, the absence of fallback marks, keyboard expansion, and responsive layouts.

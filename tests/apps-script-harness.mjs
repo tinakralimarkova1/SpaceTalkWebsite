@@ -38,7 +38,7 @@ export function createAppsScriptHarness({ beforeSetup } = {}) {
       };
       return range;
     },
-    getDataRange: () => sheet.getRange(1, 1, state.rows.length, 11),
+    getDataRange: () => sheet.getRange(1, 1, state.rows.length, sheet.getLastColumn()),
     appendRow: (row) => state.rows.push(row.map(cell)),
     setFrozenRows() {},
   };
