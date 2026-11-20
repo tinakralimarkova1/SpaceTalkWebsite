@@ -15,7 +15,7 @@ test("a saved signup queues owner and subscriber emails without delaying success
   assert.equal(h.state.rows[1][11], "pending");
   h.script.retryPendingNotifications();
   assert.equal(h.state.mail.length, 2);
-  assert.equal(h.state.mail[0].to, "tinathetinytuna@gmail.com");
+  assert.equal(h.state.mail[0].to, "alexander.geppert@nyu.edu");
   assert.match(h.state.mail[0].body, /Name: Test Person\nEmail: test@example.org\nOrganization: NYU/);
   assert.equal(h.state.mail[1].to, "test@example.org");
   assert.equal(h.state.mail[1].replyTo, "nyuspacetalks@gmail.com");

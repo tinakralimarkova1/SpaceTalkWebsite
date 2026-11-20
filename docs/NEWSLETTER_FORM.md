@@ -4,7 +4,7 @@
 
 The browser submits to `/api/newsletter`. Next.js validates the fields and forwards them to a secret-protected Google Apps Script web app. The script saves one row with a pending owner notification and subscriber confirmation, then returns success. A background trigger checks both queues every five minutes.
 
-The Sheet records **Timestamp, First name, Last name, Organization, Email**, in that order. Organization is optional. Two tracking blocks record the owner notification and subscriber confirmation status, attempts, last/next attempt, sent time, and a sanitized error. The internal notification goes only to the owner configured in `NOTIFICATION_EMAIL`, initially `tinathetinytuna@gmail.com`. It includes the name, email, organization, and a link to the private Sheet. The subscriber receives a separate confirmation at the submitted email address. Replies and unsubscribe requests are directed to `NEWSLETTER_REPLY_TO`, initially `nyuspacetalks@gmail.com`. Website success confirms the Sheet entry, not either email's delivery.
+The Sheet records **Timestamp, First name, Last name, Organization, Email**, in that order. Organization is optional. Two tracking blocks record the owner notification and subscriber confirmation status, attempts, last/next attempt, sent time, and a sanitized error. The internal notification goes only to the owner configured in `NOTIFICATION_EMAIL`, initially `alexander.geppert@nyu.edu`. It includes the name, email, organization, and a link to the private Sheet. The subscriber receives a separate confirmation at the submitted email address. Replies and unsubscribe requests are directed to `NEWSLETTER_REPLY_TO`, initially `nyuspacetalks@gmail.com`. Website success confirms the Sheet entry, not either email's delivery.
 
 No Supabase table or additional email service is required. Both messages use Google MailApp and share the sending account's daily quota. Actual delivery still depends on Google authorization, sending quotas, and recipient spam filtering.
 
@@ -22,7 +22,7 @@ Setup replaces notification triggers owned by the account running it with one fi
 
 ## Change the recipient later
 
-Open **Apps Script > Project Settings > Script Properties** and change `NOTIFICATION_EMAIL` to the professor's approved email address. Save. No website changes or new web-app deployment are needed for a property-only change. Already queued notifications use the address configured when they are processed; sent notifications are not resent. Sender identity remains the Google account that owns the trigger, not the recipient. Transferring that account's ownership/authorization is a separate handover step.
+Open **Apps Script > Project Settings > Script Properties** and set `NOTIFICATION_EMAIL` to `alexander.geppert@nyu.edu`. Save. No website changes or new web-app deployment are needed for a property-only change. Already queued notifications use the address configured when they are processed; sent notifications are not resent. Sender identity remains the Google account that owns the trigger, not the recipient. Transferring that account's ownership/authorization is a separate handover step.
 
 Change `NEWSLETTER_REPLY_TO` in the same place when subscriber replies should go elsewhere. This changes the reply address, not the visible sender. To send from `nyuspacetalks@gmail.com`, that Google account must own and authorize the Apps Script trigger, or the sending account must be configured to use an approved Gmail alias.
 

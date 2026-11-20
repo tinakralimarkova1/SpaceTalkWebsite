@@ -44,7 +44,7 @@ Latest revision (2026-10-26): owner email notifications have been restored at th
 - [x] User confirmed notification setup and deployment. Live signup/retry succeeded, and the user confirmed one test row, sent status, and receipt of the notification on 2026-10-26.
 - [ ] Observe the five-minute notification trigger processing a new signup without manually running the worker; remove the labeled test row when finished.
 - [ ] Confirm production uses the intended Google Sheet and Google account; keep test data separate from the actual mailing list.
-- [ ] Verify one intended notification trigger and confirm NOTIFICATION_EMAIL is the tester address initially; change it to the professor's approved address for handover. Other editors should remove duplicate old triggers they own.
+- [ ] Verify one intended notification trigger and confirm `NOTIFICATION_EMAIL` is `alexander.geppert@nyu.edu`. Other editors should remove duplicate old triggers they own.
 - [ ] Ensure the handover owner has appropriate access to the Sheet and script, and document which account deployed the script and authorizes Sheet access.
 - [ ] Add a brief privacy notice explaining the submitted data, purpose, and contact for removal; establish an unsubscribe/removal process in the mailing workflow.
 - [ ] Confirm the Sheet is private and shared only with the people managing the mailing list.

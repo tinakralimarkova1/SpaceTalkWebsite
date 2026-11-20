@@ -95,8 +95,8 @@ const abstracts = parseAbstracts(readBlocks("abstracts.txt"));
 const mediaLinks = new Map([
   ["Frankfurter Allgemeine Sonntagszeitung", "https://www.faz.net/aktuell/wissen/geist-soziales/wie-unser-blick-auf-die-erde-sich-veraendert-hat-19033729.html"],
   ["Der Tagesspiegel", "https://www.tagesspiegel.de/wissen/als-die-zukunft-noch-in-den-sternen-lag-die-geschichte-der-raumfahrt-10163992.html"],
-  ["NASA History News & Notes", "https://www.space-talks.com/_files/ugd/28028e_8bb131a55dba4245aebf3775835228f7.pdf"],
-  ["H-Soz-Kult", "https://www.space-talks.com/_files/ugd/28028e_6b649f6a6b384df3b762ba2279825d5f.pdf"],
+  ["NASA History News & Notes", "/thinking-outer-space/nasa-history-news-and-notes.pdf"],
+  ["H-Soz-Kult", "/thinking-outer-space/h-soz-kult-conference-report.pdf"],
   ["Radio Eins", "https://www.radioeins.de/programm/sendungen/die_profis/archivierte_sendungen/beitraege/der-weltraum-und-wir-.html"],
 ]);
 

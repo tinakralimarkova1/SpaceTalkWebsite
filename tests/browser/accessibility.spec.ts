@@ -3,6 +3,20 @@ import AxeBuilder from "@axe-core/playwright";
 
 const routes = ["/", "/archive", "/posters", "/thinking-outer-space"];
 
+test("legacy Wix season URLs redirect to their archive sections", async ({ request }) => {
+  const redirects = [
+    ["/spring-2021", "/archive#spring-2021"],
+    ["/summer-2021", "/archive#summer-2021"],
+    ["/2025-fall", "/archive#fall-2025"],
+  ] as const;
+
+  for (const [source, destination] of redirects) {
+    const response = await request.get(source, { maxRedirects: 0 });
+    expect(response.status()).toBe(308);
+    expect(response.headers().location).toBe(destination);
+  }
+});
+
 test("search and social metadata use the canonical custom domain", async ({ page, request }) => {
   const expected = [
     { path: "/", canonical: "https://www.space-talks.com", title: "NYU Space Talks" },
@@ -35,6 +49,21 @@ test("search and social metadata use the canonical custom domain", async ({ page
   expect(sitemap.status()).toBe(200);
   const sitemapText = await sitemap.text();
   for (const pageMetadata of expected) expect(sitemapText).toContain(`<loc>${pageMetadata.canonical.replace(/\/$/, "")}</loc>`);
+});
+
+test("Thinking Outer Space reports use local PDFs instead of Wix assets", async ({ page, request }) => {
+  const reports = [
+    ["NASA History News & Notes", "/thinking-outer-space/nasa-history-news-and-notes.pdf"],
+    ["H-Soz-Kult", "/thinking-outer-space/h-soz-kult-conference-report.pdf"],
+  ] as const;
+
+  await page.goto("/thinking-outer-space");
+  for (const [label, path] of reports) {
+    await expect(page.getByRole("link", { name: new RegExp(label) })).toHaveAttribute("href", path);
+    const response = await request.get(path);
+    expect(response.status()).toBe(200);
+    expect(response.headers()["content-type"]).toContain("application/pdf");
+  }
 });
 
 test("2021 archive includes the talks and full summer session programs", async ({ page }) => {

@@ -5,7 +5,7 @@ const SHEET_HEADERS = [
 const RATE_WINDOW_MS = 10 * 60 * 1000;
 const RATE_PER_CLIENT = 5;
 const RATE_PER_DAY = 200;
-const DEFAULT_NOTIFICATION_EMAIL = "tinathetinytuna@gmail.com";
+const DEFAULT_NOTIFICATION_EMAIL = "alexander.geppert@nyu.edu";
 const DEFAULT_REPLY_TO_EMAIL = "nyuspacetalks@gmail.com";
 const NOTIFICATION_HEADERS = [
   "Signup notification status", "Signup notification attempts",
