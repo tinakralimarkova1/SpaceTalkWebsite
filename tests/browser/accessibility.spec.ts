@@ -270,16 +270,20 @@ for (const width of [320, 390, 768, 820, 1024, 1440]) {
   }
 }
 
-for (const width of [320, 390, 430, 600]) {
+for (const width of [320, 390, 430, 600, 768, 899]) {
   test(`phone navigation stays on one row at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 844 });
     await page.goto("/");
-    const links = page.getByRole("navigation", { name: "Primary navigation" }).getByRole("link");
-    const boxes = await links.evaluateAll((elements) => elements.map((element) => {
+    const navigation = page.getByRole("navigation", { name: "Primary navigation" });
+    const links = navigation.getByRole("link");
+    const more = navigation.getByRole("button", { name: "More" });
+    const controls = [...await links.all(), more];
+    const boxes = await Promise.all(controls.map((control) => control.evaluate((element) => {
       const box = element.getBoundingClientRect();
       return { top: box.top, height: box.height, left: box.left, right: box.right, fontSize: getComputedStyle(element).fontSize };
-    }));
-    expect(boxes).toHaveLength(7);
+    })));
+    await expect(links).toHaveCount(4);
+    expect(boxes).toHaveLength(5);
     expect(new Set(boxes.map((box) => box.top)).size).toBe(1);
     for (const box of boxes) {
       expect(box.height).toBeGreaterThanOrEqual(44);
@@ -290,6 +294,41 @@ for (const width of [320, 390, 430, 600]) {
     }
   });
 }
+
+for (const width of [900, 1024, 1440]) {
+  test(`desktop navigation remains separate and on one row at ${width}px`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto("/");
+    const navigation = page.getByRole("navigation", { name: "Primary navigation" });
+    const links = navigation.getByRole("link");
+    const boxes = await links.evaluateAll((elements) => elements.map((element) => {
+      const box = element.getBoundingClientRect();
+      return { top: box.top, left: box.left, right: box.right };
+    }));
+
+    await expect(links).toHaveCount(7);
+    await expect(navigation.getByRole("button", { name: "More" })).toHaveCount(0);
+    expect(new Set(boxes.map((box) => box.top)).size).toBe(1);
+    expect(boxes.every((box) => box.left >= 0 && box.right <= width)).toBe(true);
+  });
+}
+
+test("phone More menu reveals secondary pages and closes with Escape", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/");
+  const navigation = page.getByRole("navigation", { name: "Primary navigation" });
+  const more = navigation.getByRole("button", { name: "More" });
+
+  await expect(more).toHaveAttribute("aria-expanded", "false");
+  await more.click();
+  await expect(more).toHaveAttribute("aria-expanded", "true");
+  await expect(navigation.getByRole("link", { name: "Archive" })).toBeVisible();
+  await expect(navigation.getByRole("link", { name: "Posters" })).toBeVisible();
+  await expect(navigation.getByRole("link", { name: "Thinking Outer Space" })).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(more).toHaveAttribute("aria-expanded", "false");
+  await expect(more).toBeFocused();
+});
 
 for (const route of routes) {
   test(`${route} supports 200% text resizing on a narrow screen`, async ({ page }) => {
