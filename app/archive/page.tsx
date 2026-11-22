@@ -37,7 +37,7 @@ const talkNumbersBySeason: Record<string, readonly number[]> = {
   "spring-2024": [24, 25, 26, 27],
   "fall-2024": [28, 29, 30, 31],
   "spring-2025": [32, 34, 33, 35],
-  "fall-2025": [36, 38, 37, 39],
+  "fall-2025": [36, 37, 38, 39],
   "spring-2026": [43, 42, 41, 40],
 };
 

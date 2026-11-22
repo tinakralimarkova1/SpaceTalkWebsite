@@ -158,8 +158,8 @@ test("talk numbers follow the historical sequence and skip Summer 2021", async (
   ]);
   await expect(page.locator("#fall-2025 .archive-talk-title")).toHaveText([
     /39\. 'New Planet, Dad\. Please!'/,
-    /38\. Territory beyond Earth/,
-    /37\. The Post-Soviet Space Deal/,
+    /38\. The Post-Soviet Space Deal/,
+    /37\. Territory beyond Earth/,
     /36\. History, Communication and the Global Imagination/,
   ]);
   const summerTitles = await page.locator("#summer-2021 .archive-talk-title").allTextContents();
