@@ -42,26 +42,14 @@ export function SiteHeader() {
           priority
         />
       </a>
-      <nav className="desktop-navigation" aria-label="Primary navigation">
+      <nav className="site-navigation" aria-label="Primary navigation">
         <Link href="/#about">Home</Link>
-        <Link href="/about">About</Link>
         <Link aria-label="Fall 2026" href="/#schedule">
           <span className="nav-label-desktop">Fall 2026</span>
           <span className="nav-label-mobile">Fall 26</span>
         </Link>
-        <Link href="/archive">Archive</Link>
-        <Link href="/posters">Posters</Link>
-        <Link aria-label="Thinking Outer Space" href="/thinking-outer-space">
-          <span className="nav-label-desktop">Thinking Outer Space</span>
-          <span className="nav-label-mobile">Thinking</span>
-        </Link>
         <Link href="/#contact">Contact</Link>
-      </nav>
-      <nav className="mobile-navigation" aria-label="Primary navigation">
-        <Link href="/#about">Home</Link>
         <Link href="/about">About</Link>
-        <Link aria-label="Fall 2026" href="/#schedule">Fall 26</Link>
-        <Link href="/#contact">Contact</Link>
         <div className="mobile-more" ref={moreMenuRef}>
           <button
             aria-controls="mobile-more-menu"

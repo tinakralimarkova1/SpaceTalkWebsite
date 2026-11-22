@@ -270,8 +270,8 @@ for (const width of [320, 390, 768, 820, 1024, 1440]) {
   }
 }
 
-for (const width of [320, 390, 430, 600, 768, 899]) {
-  test(`phone navigation stays on one row at ${width}px`, async ({ page }) => {
+for (const width of [320, 390, 430, 600, 768, 899, 900, 1024, 1440]) {
+  test(`primary navigation uses the same links at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 844 });
     await page.goto("/");
     const navigation = page.getByRole("navigation", { name: "Primary navigation" });
@@ -283,6 +283,12 @@ for (const width of [320, 390, 430, 600, 768, 899]) {
       return { top: box.top, height: box.height, left: box.left, right: box.right, fontSize: getComputedStyle(element).fontSize };
     })));
     await expect(links).toHaveCount(4);
+    expect(await links.evaluateAll((elements) => elements.map((element) => (element as HTMLElement).innerText.trim().toLowerCase()))).toEqual([
+      "home",
+      width <= 899 ? "fall 26" : "fall 2026",
+      "contact",
+      "about",
+    ]);
     expect(boxes).toHaveLength(5);
     expect(new Set(boxes.map((box) => box.top)).size).toBe(1);
     for (const box of boxes) {
@@ -290,30 +296,12 @@ for (const width of [320, 390, 430, 600, 768, 899]) {
       expect(box.left).toBeGreaterThanOrEqual(0);
       expect(box.right).toBeLessThanOrEqual(width);
       expect(Number.parseFloat(box.fontSize)).toBeGreaterThanOrEqual(10);
-      expect(Number.parseFloat(box.fontSize)).toBeLessThanOrEqual(13);
+      expect(Number.parseFloat(box.fontSize)).toBeLessThanOrEqual(width <= 899 ? 13 : 16);
     }
   });
 }
 
-for (const width of [900, 1024, 1440]) {
-  test(`desktop navigation remains separate and on one row at ${width}px`, async ({ page }) => {
-    await page.setViewportSize({ width, height: 900 });
-    await page.goto("/");
-    const navigation = page.getByRole("navigation", { name: "Primary navigation" });
-    const links = navigation.getByRole("link");
-    const boxes = await links.evaluateAll((elements) => elements.map((element) => {
-      const box = element.getBoundingClientRect();
-      return { top: box.top, left: box.left, right: box.right };
-    }));
-
-    await expect(links).toHaveCount(7);
-    await expect(navigation.getByRole("button", { name: "More" })).toHaveCount(0);
-    expect(new Set(boxes.map((box) => box.top)).size).toBe(1);
-    expect(boxes.every((box) => box.left >= 0 && box.right <= width)).toBe(true);
-  });
-}
-
-test("phone More menu reveals secondary pages and closes with Escape", async ({ page }) => {
+test("More menu reveals secondary pages and closes with Escape", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/");
   const navigation = page.getByRole("navigation", { name: "Primary navigation" });
@@ -357,13 +345,19 @@ for (const route of routes) {
   });
 }
 
-test("keyboard navigation can open Archive and Posters", async ({ page, browserName }) => {
+test("keyboard navigation can open Archive and Posters from More", async ({ page }) => {
   await page.goto("/");
-  for (let i = 0; i < 6; i++) await nextControl(page, browserName);
-  await expect(page.getByRole("navigation", { name: "Primary navigation" }).getByRole("link", { name: "Archive" })).toBeFocused();
+  const navigation = page.getByRole("navigation", { name: "Primary navigation" });
+  const more = navigation.getByRole("button", { name: "More" });
+  await more.focus();
+  await page.keyboard.press("Enter");
+  const archive = navigation.getByRole("link", { name: "Archive" });
+  await archive.focus();
   await page.keyboard.press("Enter");
   await expect(page).toHaveURL(/\/archive$/);
-  await page.getByRole("navigation", { name: "Primary navigation" }).getByRole("link", { name: "Posters" }).focus();
+  const archiveNavigation = page.getByRole("navigation", { name: "Primary navigation" });
+  await archiveNavigation.getByRole("button", { name: "More" }).click();
+  await archiveNavigation.getByRole("link", { name: "Posters" }).focus();
   await page.keyboard.press("Enter");
   await expect(page).toHaveURL(/\/posters$/);
 });
