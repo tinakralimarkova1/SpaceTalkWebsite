@@ -15,6 +15,7 @@ export function SiteHeader() {
       </a>
       <nav aria-label="Primary navigation">
         <Link href="/#about">Home</Link>
+        <Link href="/about">About</Link>
         <Link aria-label="Fall 2026" href="/#schedule">
           <span className="nav-label-desktop">Fall 2026</span>
           <span className="nav-label-mobile">Fall 26</span>

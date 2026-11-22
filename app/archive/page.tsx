@@ -70,6 +70,17 @@ function archiveDate(date: string) {
   return weekdaySeparator === -1 ? date : date.slice(weekdaySeparator + 1).trim();
 }
 
+function orderedArchiveTalks(season: (typeof archiveSeasons)[number]) {
+  const talkNumbers = talkNumbersBySeason[season.slug];
+  const talks = season.talks.map((talk, talkIndex) => ({ talk, talkIndex }));
+
+  if (!talkNumbers) return talks;
+
+  return talks.sort(
+    (first, second) => talkNumbers[second.talkIndex] - talkNumbers[first.talkIndex],
+  );
+}
+
 export default function ArchivePage() {
   const firstSeasonByYear = new Map<string, string>();
   for (const season of archiveSeasons) {
@@ -101,7 +112,7 @@ export default function ArchivePage() {
 
             {season.talks.length > 0 ? (
               <div className="archive-talk-list">
-                {season.talks.map((talk, talkIndex) => {
+                {orderedArchiveTalks(season).map(({ talk, talkIndex }) => {
                   const abstract = abstractsBySeason[season.slug]?.[talk.title];
                   const sourceImage = imagesBySeason[season.slug]?.[talk.title];
                   const talkNumber = talkNumbersBySeason[season.slug]?.[talkIndex];

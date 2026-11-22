@@ -135,6 +135,15 @@ nav a {
   display: inline-flex;
   min-height: 44px;
   min-width: 44px;
+  transition: color 160ms ease;
+}
+
+nav a:focus-visible {
+  color: var(--accent);
+}
+
+nav a:hover {
+  color: var(--accent);
 }
 
 .nav-label-mobile {
@@ -547,6 +556,34 @@ h3 {
   max-width: 720px;
 }
 
+.about-content {
+  margin: 0 auto;
+  max-width: 980px;
+  padding: clamp(44px, 7vw, 92px) clamp(18px, 5vw, 64px) clamp(72px, 10vw, 140px);
+}
+
+.about-content p {
+  color: var(--text);
+  font-size: var(--font-md);
+  line-height: 1.75;
+  margin: 0;
+}
+
+.about-content p + p {
+  margin-top: clamp(24px, 4vw, 40px);
+}
+
+.about-content a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+}
+
+.about-content a:hover {
+  color: var(--text);
+}
+
 .archive-index {
   display: grid;
   gap: 28px;
@@ -905,18 +942,22 @@ h3 {
   }
 
   .site-header nav {
-    display: grid;
+    display: flex;
+    flex-wrap: nowrap;
     gap: 0;
-    grid-template-columns: repeat(6, minmax(0, 1fr));
-    width: 100%;
+    justify-content: space-between;
+    margin-left: -10px;
+    margin-right: -10px;
+    width: calc(100% + 20px);
   }
 
   .site-header nav a {
+    flex: 0 0 auto;
     font-size: 10px;
     justify-content: center;
     min-width: 0;
     white-space: nowrap;
-    width: 100%;
+    width: auto;
   }
 
   .nav-label-desktop {
@@ -936,6 +977,10 @@ h3 {
   .site-background {
     background-position: center 50%;
     will-change: auto;
+  }
+
+  nav a {
+    transition: none;
   }
 
   .home-page .hero::before {

@@ -15,7 +15,7 @@ const SOCIAL_IMAGE = {
 type PageMetadataOptions = {
   title: string;
   description: string;
-  path: "/" | "/archive" | "/posters" | "/thinking-outer-space";
+  path: "/" | "/about" | "/archive" | "/posters" | "/thinking-outer-space";
   absoluteTitle?: boolean;
 };
 

@@ -1,7 +1,7 @@
 import { test, expect, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 
-const routes = ["/", "/archive", "/posters", "/thinking-outer-space"];
+const routes = ["/", "/about", "/archive", "/posters", "/thinking-outer-space"];
 
 test("legacy Wix season URLs redirect to their archive sections", async ({ request }) => {
   const redirects = [
@@ -20,6 +20,7 @@ test("legacy Wix season URLs redirect to their archive sections", async ({ reque
 test("search and social metadata use the canonical custom domain", async ({ page, request }) => {
   const expected = [
     { path: "/", canonical: "https://www.space-talks.com", title: "NYU Space Talks" },
+    { path: "/about", canonical: "https://www.space-talks.com/about", title: "About" },
     { path: "/archive", canonical: "https://www.space-talks.com/archive", title: "Archive" },
     { path: "/posters", canonical: "https://www.space-talks.com/posters", title: "Posters" },
     {
@@ -91,16 +92,18 @@ test("archive dropdowns reveal the abstracts from the original season pages", as
   await expect(page.locator("#spring-2024 .archive-talk-image-fallback")).toHaveCount(0);
   await expect(page.locator("#fall-2024 .archive-talk").first().locator(".archive-talk-image-source")).toHaveCount(1);
 
-  const firstTalk = page.locator(".archive-talk").first();
-  await expect(firstTalk).not.toHaveAttribute("open", "");
-  await firstTalk.locator("summary").focus();
+  const billionaireTalk = page.locator("#spring-2026 .archive-talk").filter({
+    hasText: "How to Think Like a Space Billionaire",
+  });
+  await expect(billionaireTalk).not.toHaveAttribute("open", "");
+  await billionaireTalk.locator("summary").focus();
   await page.keyboard.press("Enter");
-  await expect(firstTalk).toHaveAttribute("open", "");
-  await expect(firstTalk.getByRole("heading", { name: "Abstract" })).toBeVisible();
-  await expect(firstTalk.locator(".archive-talk-image img")).toBeVisible();
-  await expect.poll(() => firstTalk.locator("img").evaluate((image) => (image as HTMLImageElement).naturalWidth))
+  await expect(billionaireTalk).toHaveAttribute("open", "");
+  await expect(billionaireTalk.getByRole("heading", { name: "Abstract" })).toBeVisible();
+  await expect(billionaireTalk.locator(".archive-talk-image img")).toBeVisible();
+  await expect.poll(() => billionaireTalk.locator("img").evaluate((image) => (image as HTMLImageElement).naturalWidth))
     .toBeGreaterThan(0);
-  await expect(firstTalk.locator(".archive-talk-abstract p")).toContainText(
+  await expect(billionaireTalk.locator(".archive-talk-abstract p")).toContainText(
     "Several of the world’s wealthiest people",
   );
 });
@@ -137,30 +140,37 @@ test("talk numbers follow the historical sequence and skip Summer 2021", async (
     /40\. Prelude to the Space Age/,
   ]);
   await expect(page.locator("#spring-2021 .archive-talk-title")).toHaveText([
-    /1\. Dark Skies/,
-    /2\. The Eighth Continent/,
     /3\. Militant Astroculture/,
+    /2\. The Eighth Continent/,
+    /1\. Dark Skies/,
   ]);
   await expect(page.locator("#fall-2023 .archive-talk-title")).toHaveText([
-    /20\. Mexico in Orbit/,
+    /23\. The LDEF/,
     /22\. Woman\/Astronaut/,
     /21\. Politics, Personalities and Space Programs/,
-    /23\. The LDEF/,
+    /20\. Mexico in Orbit/,
   ]);
   await expect(page.locator("#spring-2025 .archive-talk-title")).toHaveText([
-    /32\. History and Narrative in China's Space Program/,
+    /35\. Space on Display/,
     /34\. Where Were They\?/,
     /33\. The Société Astronomique de France/,
-    /35\. Space on Display/,
+    /32\. History and Narrative in China's Space Program/,
   ]);
   await expect(page.locator("#fall-2025 .archive-talk-title")).toHaveText([
-    /36\. History, Communication and the Global Imagination/,
+    /39\. 'New Planet, Dad\. Please!'/,
     /38\. Territory beyond Earth/,
     /37\. The Post-Soviet Space Deal/,
-    /39\. 'New Planet, Dad\. Please!'/,
+    /36\. History, Communication and the Global Imagination/,
   ]);
   const summerTitles = await page.locator("#summer-2021 .archive-talk-title").allTextContents();
   expect(summerTitles.every((title) => !/^\d+\./.test(title))).toBe(true);
+
+  const numberedTitles = await page.locator(".archive-talk-title").allTextContents();
+  const archiveTalkNumbers = numberedTitles
+    .map((title) => title.match(/^(\d+)\./)?.[1])
+    .filter((number): number is string => Boolean(number))
+    .map(Number);
+  expect(archiveTalkNumbers).toEqual([...archiveTalkNumbers].sort((first, second) => second - first));
 });
 
 test("current season separates upcoming and past talks and closes past registration", async ({ page }) => {
@@ -269,7 +279,7 @@ for (const width of [320, 390, 430, 600]) {
       const box = element.getBoundingClientRect();
       return { top: box.top, height: box.height, left: box.left, right: box.right, fontSize: getComputedStyle(element).fontSize };
     }));
-    expect(boxes).toHaveLength(6);
+    expect(boxes).toHaveLength(7);
     expect(new Set(boxes.map((box) => box.top)).size).toBe(1);
     for (const box of boxes) {
       expect(box.height).toBeGreaterThanOrEqual(44);
@@ -310,7 +320,7 @@ for (const route of routes) {
 
 test("keyboard navigation can open Archive and Posters", async ({ page, browserName }) => {
   await page.goto("/");
-  for (let i = 0; i < 5; i++) await nextControl(page, browserName);
+  for (let i = 0; i < 6; i++) await nextControl(page, browserName);
   await expect(page.getByRole("navigation", { name: "Primary navigation" }).getByRole("link", { name: "Archive" })).toBeFocused();
   await page.keyboard.press("Enter");
   await expect(page).toHaveURL(/\/archive$/);
@@ -326,6 +336,16 @@ test("navigation Home link returns to the NYU Space Talks hero", async ({ page }
   await home.click();
   await expect(page).toHaveURL(/\/#about$/);
   await expect(page.getByRole("heading", { level: 1, name: "NYU Space Talks" })).toBeInViewport();
+});
+
+test("primary navigation highlights hovered and focused links", async ({ page }) => {
+  await page.goto("/");
+  const about = page.getByRole("navigation", { name: "Primary navigation" }).getByRole("link", { name: "About" });
+
+  await about.hover();
+  await expect(about).toHaveCSS("color", "rgb(255, 180, 92)");
+  await about.focus();
+  await expect(about).toHaveCSS("color", "rgb(255, 180, 92)");
 });
 
 test("all displayed current-season time ranges use en dashes", async ({ page }) => {
